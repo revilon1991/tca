@@ -1,0 +1,22 @@
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/public/bundles/
+/var/
+!/var/.gitkeep
+/vendor/
+/.env
+###< symfony/framework-bundle ###
+
+###> danog/madelineproto ###
+/public/photo
+###< danog/madelineproto ###
+
+###> docker ###
+/docker/db/data
+/docker/logs
+###< docker ###
+
+### JetBrains template
+.idea/
