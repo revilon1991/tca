@@ -1,0 +1,7 @@
+my_builder_cronos:
+    exporter:
+        key:        '%env(string:DOMAIN)%'
+        mailto:     '%env(string:CRON_MAILTO)%'
+        executor:   '%env(string:CRON_PHP_EXECUTOR)%'
+        console:    '%kernel.project_dir%/bin/console'
+        shell:      '%env(string:CRON_SHELL)%'

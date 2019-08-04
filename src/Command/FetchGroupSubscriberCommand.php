@@ -9,6 +9,7 @@ use App\Entity\Subscriber;
 use App\Service\TelegramAPIService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use MyBuilder\Bundle\CronosBundle\Annotation\Cron;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,6 +17,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
+ * @Cron(minute="0", hour="0", noLogs=true, server="main")
+ *
  * @property EntityManagerInterface manager
  * @property TelegramAPIService telegramAPIService
  * @property LoggerInterface logger
