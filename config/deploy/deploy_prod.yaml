@@ -1,0 +1,44 @@
+-
+    name:           PROD deployment script
+    hosts:          prod
+    remote_user:    admin
+    become_user:    admin
+    gather_facts:   false
+
+    roles:
+        - cbrunnkvist.ansistrano-symfony-deploy
+
+    vars:
+        # custom
+        deploy_from_branch:         '{{ branch }}'
+        release_console_path:       '{{ ansistrano_release_path.stdout }}/{{ symfony_console_path }}'
+
+        # ansistrano
+        ansistrano_git_repo:                '{{ git_repo }}'
+        ansistrano_deploy_via:              git
+        ansistrano_current_dir:             current
+        ansistrano_allow_anonymous_stats:   false
+        ansistrano_deploy_to:               '{{ deploy_to }}'
+        ansistrano_git_branch:              '{{ deploy_from_branch }}'
+        ansistrano_keep_releases:           3
+        ansistrano_shared_paths:
+            - 'var/log'
+        ansistrano_shared_files:
+            - '.env'
+
+        # symfony deployer
+        symfony_env:                        prod
+        symfony_php_path:                   php
+        symfony_run_composer:               true
+        symfony_composer_options:           '-v -n -o --prefer-dist --no-progress --no-dev'
+        symfony_console_path:               'bin/console'
+        symfony_run_assetic_dump:           false
+        symfony_run_doctrine_migrations:    false
+        symfony_doctrine_options:           '--no-interaction'
+
+        # hooks
+        ansistrano_before_symlink_shared_tasks_file: '{{ playbook_dir }}/hook_prod/before-symlink-shared-tasks-file.yaml'
+        ansistrano_after_symlink_tasks_file: '{{ playbook_dir }}/hook_prod/after-symlink-tasks-file.yaml'
+
+    vars_files:
+        - parameters.yaml

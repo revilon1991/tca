@@ -1,0 +1,8 @@
+---
+-
+    name: '{{ deploy_from_branch }} | Check .env in share'
+    copy:
+        src: '{{ ansistrano_release_path.stdout }}/.env.dist'
+        dest: '{{ ansistrano_release_path.stdout }}/../../shared/.env'
+        remote_src: yes
+        force: no

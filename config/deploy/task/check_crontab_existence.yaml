@@ -1,0 +1,4 @@
+---
+-
+  name: '{{ deploy_from_branch }} | Checking for existing crontab'
+  command: 'crontab -l'

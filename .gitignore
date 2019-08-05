@@ -23,3 +23,7 @@
 
 ### JetBrains template
 .idea/
+
+###< deploy ###
+/config/deploy/parameters.yaml
+###> deploy ###

@@ -1,0 +1,11 @@
+webservers:
+    hosts:
+        prod:
+            ansible_ssh_host:       "{{ deploy_ssh_host }}"
+            ansible_ssh_port:       "{{ deploy_ssh_port }}"
+            ansible_user:           "{{ deploy_ssh_user }}"
+            deploy_to:              "{{ deploy_path }}"
+
+    vars:
+        git_repo:           'https://github.com/revilon1991/tca.git'
+        project_name:       tca

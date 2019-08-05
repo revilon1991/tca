@@ -1,0 +1,4 @@
+---
+-
+    name: '{{ deploy_from_branch }} | Crontab export for ALL'
+    command: '{{ release_console_path }} cronos:replace --env={{ symfony_env }} --server=all'

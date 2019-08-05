@@ -1,0 +1,4 @@
+deploy_ssh_host: '9ek.ru'
+deploy_ssh_port: '49185'
+deploy_ssh_user: 'admin'
+deploy_path: '/home/admin/web/tca.9ek.ru'
