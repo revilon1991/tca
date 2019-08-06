@@ -9,17 +9,6 @@ use danog\MadelineProto\Logger;
 use danog\MadelineProto\Stream\Proxy\SocksProxy;
 use Psr\Log\LoggerInterface;
 
-/**
- * @property string projectDir
- * @property string proxyHost
- * @property int proxyPort
- * @property string proxyUsername
- * @property string proxyPassword
- * @property string appId
- * @property string appHash
- * @property string botToken
- * @property LoggerInterface logger
- */
 class TelegramAPIService
 {
     private const SESSION_BOT_FILENAME = 'session.bot.madeline';
@@ -31,36 +20,81 @@ class TelegramAPIService
     private $madelineProto;
 
     /**
+     * @var string
+     */
+    private $projectDir;
+
+    /**
+     * @var string
+     */
+    private $appId;
+
+    /**
+     * @var string
+     */
+    private $appHash;
+
+    /**
+     * @var string
+     */
+    private $botToken;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @var string|null
+     */
+    private $proxyHost;
+
+    /**
+     * @var int|null
+     */
+    private $proxyPort;
+
+    /**
+     * @var string|null
+     */
+    private $proxyUsername;
+
+    /**
+     * @var string|null
+     */
+    private $proxyPassword;
+
+    /**
      * @param string $projectDir
-     * @param string $proxyHost
-     * @param int $proxyPort
-     * @param string $proxyUsername
-     * @param string $proxyPassword
      * @param string $appId
      * @param string $appHash
      * @param string $botToken
      * @param LoggerInterface $logger
+     * @param string $proxyHost
+     * @param int $proxyPort
+     * @param string $proxyUsername
+     * @param string $proxyPassword
      */
     public function __construct(
         string $projectDir,
-        string $proxyHost,
-        int $proxyPort,
-        string $proxyUsername,
-        string $proxyPassword,
         string $appId,
         string $appHash,
         string $botToken,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ?string $proxyHost,
+        ?int $proxyPort,
+        ?string $proxyUsername,
+        ?string $proxyPassword
     ) {
         $this->projectDir = $projectDir;
-        $this->proxyHost = $proxyHost;
-        $this->proxyPort = $proxyPort;
-        $this->proxyUsername = $proxyUsername;
-        $this->proxyPassword = $proxyPassword;
         $this->appId = $appId;
         $this->appHash = $appHash;
         $this->botToken = $botToken;
         $this->logger = $logger;
+        $this->proxyHost = $proxyHost;
+        $this->proxyPort = $proxyPort;
+        $this->proxyUsername = $proxyUsername;
+        $this->proxyPassword = $proxyPassword;
     }
 
     /**
@@ -122,12 +156,23 @@ class TelegramAPIService
         }
 
         $settings['connection_settings']['all']['proxy'] = SocksProxy::getName();
-        $settings['connection_settings']['all']['proxy_extra'] = [
-            'address'  => $this->proxyHost,
-            'port'     =>  $this->proxyPort,
-            'username' => $this->proxyUsername,
-            'password' => $this->proxyPassword,
-        ];
+
+        $isProxy =
+            (bool)$this->proxyHost &&
+            (bool)$this->proxyPort &&
+            (bool)$this->proxyUsername &&
+            (bool)$this->proxyPassword
+        ;
+
+        if ($isProxy) {
+            $settings['connection_settings']['all']['proxy_extra'] = [
+                'address'  => $this->proxyHost,
+                'port'     =>  $this->proxyPort,
+                'username' => $this->proxyUsername,
+                'password' => $this->proxyPassword,
+            ];
+        }
+
         $settings['logger'] = [
             'logger' => Logger::CALLABLE_LOGGER,
             'logger_level' => Logger::FATAL_ERROR,

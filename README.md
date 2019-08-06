@@ -17,6 +17,39 @@ This project is a wrapper for repository [MadelineProto](https://github.com/dano
     php bin/console doctrine:schema:update -f
 ```
 
+## Configuration
+Configure environment variables in the .env file.
+
+`AppId` and `AppHash` for the madelineproto environment can be obtained after registering your application on the resource [my.telegram.org](https://my.telegram.org)
+
+Proxy settings - optional.
+
+`DEFAULT_FETCH_GROUP_SUBSCRIBER` - group id without "@" which will by default receive subscriber updates.
+
+```bash
+###> danog/madelineproto ###
+MADELINEPROTO_CONNECTION_PROXY_HOST=''
+MADELINEPROTO_CONNECTION_PROXY_PORT=''
+MADELINEPROTO_CONNECTION_PROXY_USERNAME=''
+MADELINEPROTO_CONNECTION_PROXY_PASSWORD=''
+
+MADELINEPROTO_CONNECTION_API_ID=''
+MADELINEPROTO_CONNECTION_API_HASH=''
+
+MADELINEPROTO_CONNECTION_BOT_TOKEN=''
+###< danog/madelineproto ###
+
+###> mybuilder/cronos-bundle ###
+CRON_SHELL='/bin/bash'
+CRON_MAILTO='test@gmail.com'
+CRON_PHP_EXECUTOR='/usr/bin/php'
+###< mybuilder/cronos-bundle ###
+
+###> application ###
+DEFAULT_FETCH_GROUP_SUBSCRIBER=''
+###< application ###
+```
+
 ### Usage
 
 Fetch group info:

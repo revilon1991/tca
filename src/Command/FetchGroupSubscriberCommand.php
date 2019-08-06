@@ -12,6 +12,7 @@ use Exception;
 use MyBuilder\Bundle\CronosBundle\Annotation\Cron;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -72,12 +73,7 @@ class FetchGroupSubscriberCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument(
-                'group_id',
-                InputArgument::REQUIRED,
-                'telegram channel/chat id',
-                $this->defaultGroupId
-            )
+            ->addArgument('group_id', InputArgument::OPTIONAL, 'telegram channel/chat id')
         ;
     }
 
@@ -86,7 +82,11 @@ class FetchGroupSubscriberCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $externalGroupId = $input->getArgument('group_id');
+        $externalGroupId = $input->getArgument('group_id') ?? $this->defaultGroupId;
+
+        if (!$externalGroupId) {
+            throw new InvalidArgumentException('Argument "group_id" is required.');
+        }
 
         $userList = $this->telegramAPIService->getChannelUserList($externalGroupId);
 
