@@ -23,6 +23,7 @@
         ansistrano_keep_releases:           3
         ansistrano_shared_paths:
             - 'var/log'
+            - 'public/photo'
         ansistrano_shared_files:
             - '.env'
 

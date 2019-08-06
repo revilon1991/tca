@@ -18,10 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @Cron(minute="0", hour="0", noLogs=true, server="main")
- *
- * @property EntityManagerInterface manager
- * @property TelegramAPIService telegramAPIService
- * @property LoggerInterface logger
  */
 class FetchGroupSubscriberCommand extends Command
 {
@@ -31,20 +27,43 @@ class FetchGroupSubscriberCommand extends Command
     protected static $defaultName = 'fetch:group:subscribers';
 
     /**
+     * @var EntityManagerInterface
+     */
+    private $manager;
+
+    /**
+     * @var TelegramAPIService
+     */
+    private $telegramAPIService;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @var string
+     */
+    private $defaultGroupId;
+
+    /**
      * @required
      *
      * @param EntityManagerInterface $manager
      * @param TelegramAPIService $telegramAPIService
      * @param LoggerInterface $logger
+     * @param string $defaultGroupId
      */
     public function dependencyInjection(
         EntityManagerInterface $manager,
         TelegramAPIService $telegramAPIService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        string $defaultGroupId
     ): void {
         $this->manager = $manager;
         $this->telegramAPIService = $telegramAPIService;
         $this->logger = $logger;
+        $this->defaultGroupId = $defaultGroupId;
     }
 
     /**
@@ -53,7 +72,12 @@ class FetchGroupSubscriberCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('group_id', InputArgument::REQUIRED, 'telegram channel/chat id')
+            ->addArgument(
+                'group_id',
+                InputArgument::REQUIRED,
+                'telegram channel/chat id',
+                $this->defaultGroupId
+            )
         ;
     }
 

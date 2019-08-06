@@ -20,19 +20,37 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @property EntityManagerInterface manager
- * @property TelegramAPIService telegramAPIService
- * @property IdGenerator idGenerator
- * @property PathGenerator pathGenerator
- * @property string photoPublicDir
- */
 class FetchGroupCommand extends Command
 {
     /**
      * @var string
      */
     protected static $defaultName = 'fetch:group';
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $manager;
+
+    /**
+     * @var TelegramAPIService
+     */
+    private $telegramAPIService;
+
+    /**
+     * @var IdGenerator
+     */
+    private $idGenerator;
+
+    /**
+     * @var PathGenerator
+     */
+    private $pathGenerator;
+
+    /**
+     * @var string
+     */
+    private $photoPublicDir;
 
     /**
      * @required
