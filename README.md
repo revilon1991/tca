@@ -9,6 +9,7 @@ This project is a wrapper for repository [MadelineProto](https://github.com/dano
 
 ```bash
     git clone git@github.com:revilon1991/tca.git
+    cd tca
     cp .env.dist .env
     docker-compose build
     docker-compose up -d
