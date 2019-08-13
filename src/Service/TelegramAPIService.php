@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Dto\InputUserDto;
+use App\Dto\UserInfoDto;
 use danog\MadelineProto\API;
 use danog\MadelineProto\Logger;
 use danog\MadelineProto\Stream\Proxy\SocksProxy;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
 class TelegramAPIService
 {
@@ -117,7 +120,7 @@ class TelegramAPIService
      * @param array $photoMeta
      * @param string $pathname
      */
-    public function saveChannelPhoto(array $photoMeta, string $pathname): void
+    public function savePhoto(array $photoMeta, string $pathname): void
     {
         $this->initialization();
 
@@ -129,9 +132,55 @@ class TelegramAPIService
      *
      * @return array
      */
-    public function getChannelPhotoInfo(array $photoMeta): array
+    public function getPhotoInfo(array $photoMeta): array
     {
         return $this->madelineProto->get_download_info($photoMeta);
+    }
+
+    /**
+     * @param string $username
+     *
+     * @return UserInfoDto
+     *
+     * @throws ExceptionInterface
+     */
+    public function getUserInfo(string $username): UserInfoDto
+    {
+        $this->initialization();
+
+        $userFullInfo = $this->madelineProto->get_full_info($username);
+
+        return new UserInfoDto([
+            'externalId' => $userFullInfo['full']['user']['id'],
+            'accessHash' => $userFullInfo['full']['user']['access_hash'],
+            'type' => $userFullInfo['type'],
+            'lastUpdate' => $userFullInfo['last_update'],
+            'firstName' => $userFullInfo['full']['user']['first_name'] ?? null,
+            'lastName' => $userFullInfo['full']['user']['last_name'] ?? null,
+            'username' => $userFullInfo['full']['user']['username'] ?? null,
+            'about' => $userFullInfo['full']['about'] ?? null,
+            'phone' => $userFullInfo['full']['phone'] ?? null,
+        ]);
+    }
+
+    /**
+     * @param InputUserDto $inputUserDto
+     *
+     * @return array
+     */
+    public function getUserPhotoMetaList(InputUserDto $inputUserDto): array
+    {
+        $this->initialization();
+
+        /** @var array $userPhotoList */
+        $userPhotoList = $this->madelineProto->photos->getUserPhotos([
+            'user_id' => $inputUserDto->toArray(),
+            'offset' => 0,
+            'max_id' => 0,
+            'limit' => 10,
+        ]);
+
+        return $userPhotoList['photos'] ?? [];
     }
 
     /**
@@ -190,8 +239,6 @@ class TelegramAPIService
             'default_temp_auth_key_expires_in' => 315576000,
             'full_fetch' => true,
         ];
-
-
 
         if ($isBot) {
             $sessionPathname = sprintf('%s/var/%s', $this->projectDir, self::SESSION_BOT_FILENAME);

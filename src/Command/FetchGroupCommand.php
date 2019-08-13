@@ -97,20 +97,24 @@ class FetchGroupCommand extends Command
         $channelInfo = $this->telegramAPIService->getChannelInfo($externalGroupId);
 
         $externalId = (string)$channelInfo['Chat']['id'];
+        $externalHash = (string)$channelInfo['Chat']['access_hash'];
 
         $group = $this->manager->getRepository(Group::class)->findOneBy([
             'externalId' => $externalId,
+            'externalHash' => $externalHash,
         ]);
 
         if (!$group) {
             $group = new Group();
             $group->setExternalId($externalId);
+            $group->setExternalHash($externalHash);
         }
 
         $group->setTitle($channelInfo['Chat']['title']);
         $group->setUsername($channelInfo['Chat']['username']);
         $group->setAbout($channelInfo['full']['about']);
         $group->setSubscriberCount((int)$channelInfo['full']['participants_count']);
+        $group->setExternalHash($externalHash); // todo remove after run
 
         $this->savePhoto($channelInfo, $group);
 
@@ -151,15 +155,16 @@ class FetchGroupCommand extends Command
 
         $photoMeta = $channelInfo['full']['chat_photo'];
         $photoExternalId = (string)$photoMeta['id'];
+        $photoExternalHash = (string)$photoMeta['access_hash'];
 
         /** @var Photo $photo */
         foreach ($group->getPhotoList() as $photo) {
-            if ($photo->getExternalId() === $photoExternalId) {
+            if ($photo->getExternalId() === $photoExternalId && $photo->getExternalHash() === $photoExternalHash) {
                 return;
             }
         }
 
-        $photoInfo = $this->telegramAPIService->getChannelPhotoInfo($photoMeta);
+        $photoInfo = $this->telegramAPIService->getPhotoInfo($photoMeta);
         $photoExtension = $photoInfo['ext'];
 
         $path = sprintf(
@@ -177,12 +182,13 @@ class FetchGroupCommand extends Command
             ltrim($photoExtension, '.')
         );
 
-        $this->telegramAPIService->saveChannelPhoto($photoMeta, $pathname);
+        $this->telegramAPIService->savePhoto($photoMeta, $pathname);
 
         $photo = new Photo();
         $photo->setId($id);
         $photo->setGroup($group);
         $photo->setExternalId($photoExternalId);
+        $photo->setExternalHash($photoExternalHash);
 
         $this->manager->persist($photo);
     }

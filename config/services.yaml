@@ -10,11 +10,16 @@ services:
 
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+        exclude: '../src/{DependencyInjection,Entity,Dto,Enum,Migrations,Tests,Kernel.php}'
 
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
+
+    App\EventListener\:
+        resource: '../src/EventListener'
+        tags:
+            - { name: doctrine.event_subscriber }
 
     App\Service\TelegramAPIService:
         arguments:
@@ -29,3 +34,7 @@ services:
     App\Command\FetchGroupSubscriberCommand:
         bind:
             $defaultGroupId: '%env(string:DEFAULT_FETCH_GROUP_SUBSCRIBER)%'
+
+    App\Command\FetchUserPhoto:
+        bind:
+            $mimeTypes: '@mime_types'

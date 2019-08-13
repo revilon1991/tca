@@ -18,7 +18,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqExternalId",
- *             columns={"external_id"}
+ *             columns={"external_id", "external_hash"}
  *         )
  *     })
  * @ORM\Entity()
@@ -47,6 +47,13 @@ class Group
     /**
      * @var string
      *
+     * @ORM\Column(type="string")
+     */
+    private $externalHash;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(type=GroupTypeEnumType::NAME)
      */
     private $type;
@@ -54,7 +61,7 @@ class Group
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(targetEntity=Subscriber::class, inversedBy="groupList", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity=Subscriber::class, inversedBy="groupList", cascade={"persist"})
      * @ORM\JoinTable()
      */
     private $subscriberList;
@@ -90,7 +97,7 @@ class Group
     /**
      * @var Collection
      *
-     * @ORM\OneToMany(targetEntity=Photo::class, mappedBy="group", orphanRemoval=true, cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=Photo::class, mappedBy="group", cascade={"persist", "remove"})
      */
     private $photoList;
 
@@ -282,8 +289,6 @@ class Group
         }
 
         $this->subscriberList->removeElement($subscriber);
-
-        $subscriber->removeGroup($this);
     }
 
     /**
@@ -292,5 +297,21 @@ class Group
     public function getSubscriberList(): Collection
     {
         return $this->subscriberList;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExternalHash(): string
+    {
+        return $this->externalHash;
+    }
+
+    /**
+     * @param string $externalHash
+     */
+    public function setExternalHash(string $externalHash): void
+    {
+        $this->externalHash = $externalHash;
     }
 }

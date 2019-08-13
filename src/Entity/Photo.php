@@ -9,7 +9,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
- * @ORM\Table()
+ * @ORM\Table(
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(
+ *             name="uniqExternalId",
+ *             columns={"external_id", "external_hash"}
+ *         )
+ *     }
+ * )
  * @ORM\Entity()
  */
 class Photo
@@ -34,9 +41,16 @@ class Photo
     private $externalId;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     */
+    private $externalHash;
+
+    /**
      * @var Subscriber
      *
-     * @ORM\ManyToOne(targetEntity=Subscriber::class, inversedBy="photoList")
+     * @ORM\ManyToOne(targetEntity=Subscriber::class, inversedBy="photoList", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
     private $subscriber;
@@ -44,7 +58,7 @@ class Photo
     /**
      * @var Group
      *
-     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="photoList", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="photoList", cascade={"persist"})
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
     private $group;
@@ -110,12 +124,22 @@ class Photo
      */
     public function setGroup(Group $group): void
     {
-        if ($this->group) {
-            return;
-        }
-
         $this->group = $group;
+    }
 
-        $group->addPhotoList($this);
+    /**
+     * @return string
+     */
+    public function getExternalHash(): string
+    {
+        return $this->externalHash;
+    }
+
+    /**
+     * @param string $externalHash
+     */
+    public function setExternalHash(string $externalHash): void
+    {
+        $this->externalHash = $externalHash;
     }
 }

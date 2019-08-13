@@ -337,6 +337,9 @@
             "config/packages/test/monolog.yaml"
         ]
     },
+    "symfony/options-resolver": {
+        "version": "v4.3.3"
+    },
     "symfony/orm-pack": {
         "version": "v1.0.6"
     },
@@ -390,6 +393,9 @@
     },
     "vlucas/phpdotenv": {
         "version": "v3.4.0"
+    },
+    "wakeapp/dto-resolver": {
+        "version": "v1.1.1"
     },
     "zendframework/zend-code": {
         "version": "3.3.1"

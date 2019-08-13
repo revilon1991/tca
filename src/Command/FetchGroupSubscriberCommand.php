@@ -22,6 +22,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class FetchGroupSubscriberCommand extends Command
 {
+    private const SUBSCRIBER_KEY_PATTERN = '%s_%s';
+
     /**
      * @var string
      */
@@ -92,12 +94,24 @@ class FetchGroupSubscriberCommand extends Command
 
         $userList = array_column($userList, 'user');
         $externalIdList = array_column($userList, 'id');
-        $userList = array_combine($externalIdList, $userList);
+        $externalHashList = array_column($userList, 'access_hash');
 
-        $subscriberRepository = $this->manager->getRepository(Subscriber::class);
+        $responseSubscriberList = [];
+
+        foreach ($userList as $responseSubscriber) {
+            $key = sprintf(
+                self::SUBSCRIBER_KEY_PATTERN,
+                $responseSubscriber['id'],
+                $responseSubscriber['access_hash']
+            );
+
+            $responseSubscriberList[$key] = $responseSubscriber;
+        }
+
         /** @var Subscriber[] $subscriberList */
-        $subscriberList = $subscriberRepository->findBy([
+        $subscriberList = $this->manager->getRepository(Subscriber::class)->findBy([
             'externalId' => $externalIdList,
+            'externalHash' => $externalHashList,
         ]);
 
         $groupRepository = $this->manager->getRepository(Group::class);
@@ -117,10 +131,14 @@ class FetchGroupSubscriberCommand extends Command
         $this->manager->beginTransaction();
 
         try {
-            $group->getSubscriberList()->forAll(function ($key, Subscriber $subscriber) use ($group, $userList) {
-                $externalId = $subscriber->getExternalId();
+            $group->getSubscriberList()->forAll(function ($index, Subscriber $subscriber) use ($group, $userList) {
+                $key = sprintf(
+                    self::SUBSCRIBER_KEY_PATTERN,
+                    $subscriber->getExternalId(),
+                    $subscriber->getExternalHash()
+                );
 
-                if (!isset($userList[$externalId])) {
+                if (!isset($responseSubscriberList[$key])) {
                     $subscriber->removeGroup($group);
 
                     $this->manager->persist($subscriber);
@@ -130,36 +148,43 @@ class FetchGroupSubscriberCommand extends Command
             });
 
             foreach ($subscriberList as $subscriber) {
-                $externalId = $subscriber->getExternalId();
+                $key = sprintf(
+                    self::SUBSCRIBER_KEY_PATTERN,
+                    $subscriber->getExternalId(),
+                    $subscriber->getExternalHash()
+                );
 
-                $phone = isset($userList[$externalId]['phone'])
-                    ? (string)$userList[$externalId]['phone']
-                    : null
-                ;
-                $firstName = $userList[$externalId]['first_name'] ?? null;
-                $lastName = $userList[$externalId]['last_name'] ?? null;
+                $externalHash = (string)$responseSubscriberList[$key]['access_hash'];
+
+                $phone = $responseSubscriberList[$key]['phone'] ?? null;
+                $firstName = $responseSubscriberList[$key]['first_name'] ?? null;
+                $lastName = $responseSubscriberList[$key]['last_name'] ?? null;
 
                 $subscriber->setPhone($phone);
                 $subscriber->setFirstName($firstName);
                 $subscriber->setLastName($lastName);
                 $subscriber->addGroup($group);
+                $subscriber->setExternalHash($externalHash); // todo remove after run
 
                 $this->manager->persist($subscriber);
 
-                unset($userList[$externalId]);
+                unset($responseSubscriberList[$key]);
             }
 
-            foreach ($userList as $user) {
-                $phone = isset($user['phone']) ? (string)$user['phone']: null;
-                $username = isset($user['username']) ? (string)$user['username']: null;
-                $firstName = $user['first_name'] ?? null;
-                $lastName = $user['last_name'] ?? null;
-                $externalId = (string)$user['id'];
-                $type = $user['type'];
+            foreach ($responseSubscriberList as $responseSubscriber) {
+                $externalId = (string)$responseSubscriber['id'];
+                $externalHash = (string)$responseSubscriber['access_hash'];
+                $type = $responseSubscriber['type'];
+
+                $phone = $responseSubscriber['phone'] ?? null;
+                $username = $responseSubscriber['username'] ?? null;
+                $firstName = $responseSubscriber['first_name'] ?? null;
+                $lastName = $responseSubscriber['last_name'] ?? null;
 
                 $subscriber = new Subscriber();
 
                 $subscriber->setExternalId($externalId);
+                $subscriber->setExternalHash($externalHash);
                 $subscriber->setPhone($phone);
                 $subscriber->setFirstName($firstName);
                 $subscriber->setLastName($lastName);

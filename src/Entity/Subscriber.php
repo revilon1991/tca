@@ -16,7 +16,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqExternalId",
- *             columns={"external_id"}
+ *             columns={"external_id", "external_hash"}
  *         )
  *     }
  * )
@@ -42,6 +42,13 @@ class Subscriber
      * @ORM\Column(type="string")
      */
     private $externalId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     */
+    private $externalHash;
 
     /**
      * @var string|null
@@ -74,14 +81,14 @@ class Subscriber
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="subscriberList", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="subscriberList", cascade={"persist"})
      */
     private $groupList;
 
     /**
      * @var Collection
      *
-     * @ORM\OneToMany(targetEntity=Photo::class, mappedBy="subscriber", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Photo::class, mappedBy="subscriber", cascade={"persist", "remove"})
      */
     private $photoList;
 
@@ -247,11 +254,17 @@ class Subscriber
     }
 
     /**
-     * @param Collection $photoList
+     * @param Photo $photo
      */
-    public function setPhotoList(Collection $photoList): void
+    public function addPhoto(Photo $photo): void
     {
-        $this->photoList = $photoList;
+        if ($this->photoList->contains($photo)) {
+            return;
+        }
+
+        $this->photoList->add($photo);
+
+        $photo->setSubscriber($this);
     }
 
     /**
@@ -260,5 +273,21 @@ class Subscriber
     public function getGroupList(): Collection
     {
         return $this->groupList;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExternalHash(): string
+    {
+        return $this->externalHash;
+    }
+
+    /**
+     * @param string $externalHash
+     */
+    public function setExternalHash(string $externalHash): void
+    {
+        $this->externalHash = $externalHash;
     }
 }

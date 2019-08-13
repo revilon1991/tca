@@ -6,12 +6,14 @@ namespace App\Component\IdGenerator;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Id\AbstractIdGenerator;
+use Doctrine\ORM\Mapping\MappingException;
 use Exception;
 use function getmypid;
 use function hexdec;
 use function str_pad;
 use function substr;
 use function uniqid;
+use function get_class;
 
 class IdGenerator extends AbstractIdGenerator
 {
@@ -51,9 +53,18 @@ class IdGenerator extends AbstractIdGenerator
 
     /**
      * {@inheritdoc}
+     *
+     * @throws MappingException
      */
     public function generate(EntityManager $em, $entity)
     {
-        return $this->generateUniqueId();
+        /** @var object $entity */
+        $class = $em->getClassMetadata(get_class($entity));
+
+        $idField = $class->getSingleIdentifierFieldName();
+
+        $value = $class->getFieldValue($entity, $idField);
+
+        return $value ?? $this->generateUniqueId();
     }
 }
