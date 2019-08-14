@@ -23,17 +23,10 @@ Configure environment variables in the .env file.
 
 `AppId` and `AppHash` for the madelineproto environment can be obtained after registering your application on the resource [my.telegram.org](https://my.telegram.org)
 
-Proxy settings - optional.
-
 `DEFAULT_FETCH_GROUP_SUBSCRIBER` - group id without "@" which will by default receive subscriber updates.
 
 ```bash
 ###> danog/madelineproto ###
-MADELINEPROTO_CONNECTION_PROXY_HOST=''
-MADELINEPROTO_CONNECTION_PROXY_PORT=''
-MADELINEPROTO_CONNECTION_PROXY_USERNAME=''
-MADELINEPROTO_CONNECTION_PROXY_PASSWORD=''
-
 MADELINEPROTO_CONNECTION_API_ID=''
 MADELINEPROTO_CONNECTION_API_HASH=''
 
@@ -51,6 +44,17 @@ DEFAULT_FETCH_GROUP_SUBSCRIBER=''
 ###< application ###
 ```
 
+Proxy settings - optional.
+
+```bash
+###> danog/madelineproto ###
+MADELINEPROTO_CONNECTION_PROXY_HOST=''
+MADELINEPROTO_CONNECTION_PROXY_PORT=''
+MADELINEPROTO_CONNECTION_PROXY_USERNAME=''
+MADELINEPROTO_CONNECTION_PROXY_PASSWORD=''
+###< danog/madelineproto ###
+```
+
 ### Usage
 
 Fetch group info:
@@ -61,6 +65,11 @@ php bin/console fetch:group [channael/chat id]
 Fetch all subscribers by group:
 ```bash
 php bin/console fetch:group:subscribers [channael/chat id]
+```
+
+Fetch all subscribers photo by group:
+```bash
+php bin/console fetch:subscribers:photo [channael/chat id]
 ```
 
 After executing the commands, you can observe aggregated data in the database tables.
