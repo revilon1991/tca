@@ -154,8 +154,6 @@ class FetchGroupSubscriberCommand extends Command
                     $subscriber->getExternalHash()
                 );
 
-                $externalHash = (string)$responseSubscriberList[$key]['access_hash'];
-
                 $phone = $responseSubscriberList[$key]['phone'] ?? null;
                 $firstName = $responseSubscriberList[$key]['first_name'] ?? null;
                 $lastName = $responseSubscriberList[$key]['last_name'] ?? null;
@@ -164,7 +162,6 @@ class FetchGroupSubscriberCommand extends Command
                 $subscriber->setFirstName($firstName);
                 $subscriber->setLastName($lastName);
                 $subscriber->addGroup($group);
-                $subscriber->setExternalHash($externalHash); // todo remove after run
 
                 $this->manager->persist($subscriber);
 

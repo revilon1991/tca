@@ -13,6 +13,8 @@ use App\Entity\Photo;
 use App\Entity\Subscriber;
 use App\Service\TelegramAPIService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\ORMException;
+use MyBuilder\Bundle\CronosBundle\Annotation\Cron;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,6 +23,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Mime\MimeTypes;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
+/**
+ * @Cron(minute="0", hour="1", noLogs=true, server="main")
+ */
 class FetchUserPhoto extends Command
 {
     private const PHOTO_KEY_PATTERN = '%s_%s';
@@ -63,6 +68,11 @@ class FetchUserPhoto extends Command
     private $manager;
 
     /**
+     * @var string
+     */
+    private $defaultGroupId;
+
+    /**
      * @required
      *
      * @param EntityManagerInterface $manager
@@ -71,6 +81,7 @@ class FetchUserPhoto extends Command
      * @param PathGenerator $pathGenerator
      * @param string $photoPublicDir
      * @param MimeTypes $mimeTypes
+     * @param string $defaultGroupId
      */
     public function dependencyInjection(
         EntityManagerInterface $manager,
@@ -78,7 +89,8 @@ class FetchUserPhoto extends Command
         IdGenerator $idGenerator,
         PathGenerator $pathGenerator,
         string $photoPublicDir,
-        MimeTypes $mimeTypes
+        MimeTypes $mimeTypes,
+        string $defaultGroupId
     ): void {
         $this->manager = $manager;
         $this->telegramAPIService = $telegramAPIService;
@@ -86,6 +98,7 @@ class FetchUserPhoto extends Command
         $this->pathGenerator = $pathGenerator;
         $this->photoPublicDir = $photoPublicDir;
         $this->mimeTypes = $mimeTypes;
+        $this->defaultGroupId = $defaultGroupId;
     }
 
     /**
@@ -94,7 +107,7 @@ class FetchUserPhoto extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('group', InputArgument::REQUIRED, 'Telegram group without "@"')
+            ->addArgument('group', InputArgument::OPTIONAL, 'Telegram group without "@"')
         ;
     }
 
@@ -103,10 +116,11 @@ class FetchUserPhoto extends Command
      * @param OutputInterface $output
      *
      * @throws ExceptionInterface
+     * @throws ORMException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $group = $input->getArgument('group');
+        $group = $input->getArgument('group') ?? $this->defaultGroupId;
 
         $group = $this->manager->getRepository(Group::class)->findOneBy([
             'username' => $group,
@@ -120,8 +134,6 @@ class FetchUserPhoto extends Command
 
         /** @var Subscriber $subscriber */
         foreach ($group->getSubscriberList() as $subscriber) {
-            $batchCount++;
-
             $inputUserDto = new InputUserDto([
                 'userId' => $subscriber->getExternalId(),
                 'accessHash' => $subscriber->getExternalHash(),
@@ -143,35 +155,9 @@ class FetchUserPhoto extends Command
 
             $photoMetaList = $this->getFreshPhotoMetaList($subscriber, $photoMetaList);
 
-            foreach ($photoMetaList as $photoMeta) {
-                $photoExternalId = (string)$photoMeta['id'];
-                $photoExternalHash = (string)$photoMeta['access_hash'];
+            $this->persistFreshPhotoList($photoMetaList, $subscriber);
 
-                $id = $this->idGenerator->generateUniqueId();
-
-                $path = sprintf(
-                    '%s/%s',
-                    $this->photoPublicDir,
-                    $this->pathGenerator->generateBigIntPath($id)
-                );
-
-                !file_exists($path) ? mkdir($path, 0777, true) : null;
-
-                $pathname = sprintf('%s/%s', $path, $id);
-                $this->telegramAPIService->savePhoto($photoMeta, $pathname);
-
-                $extensions = $this->mimeTypes->getExtensions(mime_content_type($pathname));
-
-                rename($pathname, sprintf('%s.%s', $pathname, $extensions[0]));
-
-                $photo = new Photo();
-                $photo->setId($id);
-                $photo->setSubscriber($subscriber);
-                $photo->setExternalId($photoExternalId);
-                $photo->setExternalHash($photoExternalHash);
-
-                $this->manager->persist($photo);
-            }
+            $batchCount++;
 
             if (($batchCount % self::BATCH_MAX_COUNT) === 0) {
                 $this->manager->flush();
@@ -204,5 +190,51 @@ class FetchUserPhoto extends Command
         }
 
         return $photoMetaList;
+    }
+
+    /**
+     * @param array $photoMetaList
+     * @param Subscriber $subscriber
+     *
+     * @throws ORMException
+     */
+    private function persistFreshPhotoList(array $photoMetaList, Subscriber $subscriber): void
+    {
+        if (!$photoMetaList) {
+            return;
+        }
+
+        /** @var Subscriber $subscriberReference */
+        $subscriberReference = $this->manager->getReference(Subscriber::class, $subscriber->getId());
+
+        foreach ($photoMetaList as $photoMeta) {
+            $photoExternalId = (string)$photoMeta['id'];
+            $photoExternalHash = (string)$photoMeta['access_hash'];
+
+            $id = $this->idGenerator->generateUniqueId();
+
+            $path = sprintf(
+                '%s/%s',
+                $this->photoPublicDir,
+                $this->pathGenerator->generateBigIntPath($id)
+            );
+
+            !file_exists($path) ? mkdir($path, 0777, true) : null;
+
+            $pathname = sprintf('%s/%s', $path, $id);
+            $this->telegramAPIService->savePhoto($photoMeta, $pathname);
+
+            $extensions = $this->mimeTypes->getExtensions(mime_content_type($pathname));
+
+            rename($pathname, sprintf('%s.%s', $pathname, $extensions[0]));
+
+            $photo = new Photo();
+            $photo->setId($id);
+            $photo->setExternalId($photoExternalId);
+            $photo->setSubscriber($subscriberReference);
+            $photo->setExternalHash($photoExternalHash);
+
+            $this->manager->persist($photo);
+        }
     }
 }

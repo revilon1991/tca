@@ -38,3 +38,5 @@ services:
     App\Command\FetchUserPhoto:
         bind:
             $mimeTypes: '@mime_types'
+            $defaultGroupId: '%env(string:DEFAULT_FETCH_GROUP_SUBSCRIBER)%'
+

@@ -50,7 +50,7 @@ class Photo
     /**
      * @var Subscriber
      *
-     * @ORM\ManyToOne(targetEntity=Subscriber::class, inversedBy="photoList", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=Subscriber::class, inversedBy="photoList")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
     private $subscriber;
@@ -58,7 +58,7 @@ class Photo
     /**
      * @var Group
      *
-     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="photoList", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="photoList")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
     private $group;

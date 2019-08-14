@@ -114,7 +114,6 @@ class FetchGroupCommand extends Command
         $group->setUsername($channelInfo['Chat']['username']);
         $group->setAbout($channelInfo['full']['about']);
         $group->setSubscriberCount((int)$channelInfo['full']['participants_count']);
-        $group->setExternalHash($externalHash); // todo remove after run
 
         $this->savePhoto($channelInfo, $group);
 
