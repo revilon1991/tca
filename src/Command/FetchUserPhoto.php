@@ -120,20 +120,35 @@ class FetchUserPhoto extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $group = $input->getArgument('group') ?? $this->defaultGroupId;
+        $groupName = $input->getArgument('group') ?? $this->defaultGroupId;
 
         $group = $this->manager->getRepository(Group::class)->findOneBy([
-            'username' => $group,
+            'username' => $groupName,
         ]);
 
         if (!$group) {
             throw new InvalidArgumentException(sprintf('Channel/Chat with username "%s" not found.', $group));
         }
 
+        $queryBuilder = $this->manager->createQueryBuilder();
+
+        $queryBuilder
+            ->distinct()
+            ->select('s')
+            ->from(Subscriber::class, 's')
+            ->innerJoin('s.groupList', 'g')
+            ->where('g.username = :group_name')
+            ->setParameter('group_name', $groupName)
+        ;
+
+        $stmt = $queryBuilder->getQuery();
+
         $batchCount = 0;
 
         /** @var Subscriber $subscriber */
-        foreach ($group->getSubscriberList() as $subscriber) {
+        foreach ($stmt->iterate() as $row) {
+            $subscriber = $row[0];
+
             $inputUserDto = new InputUserDto([
                 'userId' => $subscriber->getExternalId(),
                 'accessHash' => $subscriber->getExternalHash(),
@@ -204,9 +219,6 @@ class FetchUserPhoto extends Command
             return;
         }
 
-        /** @var Subscriber $subscriberReference */
-        $subscriberReference = $this->manager->getReference(Subscriber::class, $subscriber->getId());
-
         foreach ($photoMetaList as $photoMeta) {
             $photoExternalId = (string)$photoMeta['id'];
             $photoExternalHash = (string)$photoMeta['access_hash'];
@@ -231,7 +243,7 @@ class FetchUserPhoto extends Command
             $photo = new Photo();
             $photo->setId($id);
             $photo->setExternalId($photoExternalId);
-            $photo->setSubscriber($subscriberReference);
+            $photo->setSubscriber($subscriber);
             $photo->setExternalHash($photoExternalHash);
 
             $this->manager->persist($photo);
