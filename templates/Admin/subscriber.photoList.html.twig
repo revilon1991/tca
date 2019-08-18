@@ -1,0 +1,29 @@
+{% extends '@SonataAdmin/CRUD/base_list_field.html.twig' %}
+
+{% block field %}
+    {% for photo in object.photoList %}
+        <a href="#" data-toggle="modal" data-target=".dialog-{{ photo.id }}">
+            <img src="{{ photo|photoPath }}"
+                 width="50"
+                 class="img-responsive img-rounded center-block"
+                 alt="{{ photo.id }}"
+            />
+        </a>
+
+        <div class="modal fade dialog-{{ photo.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    </div>
+                    <div class="modal-body active">
+                        <img src="{{ photo|photoPath }}"
+                             class="img-responsive img-rounded center-block"
+                             alt="{{ photo.id }}"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

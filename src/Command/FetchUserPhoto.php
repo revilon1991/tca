@@ -210,8 +210,6 @@ class FetchUserPhoto extends Command
     /**
      * @param array $photoMetaList
      * @param Subscriber $subscriber
-     *
-     * @throws ORMException
      */
     private function persistFreshPhotoList(array $photoMetaList, Subscriber $subscriber): void
     {
@@ -245,6 +243,7 @@ class FetchUserPhoto extends Command
             $photo->setExternalId($photoExternalId);
             $photo->setSubscriber($subscriber);
             $photo->setExternalHash($photoExternalHash);
+            $photo->setExtension($extensions[0]);
 
             $this->manager->persist($photo);
         }

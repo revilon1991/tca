@@ -64,6 +64,13 @@ class Photo
     private $group;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string", options={"default": "jpeg"})
+     */
+    private $extension;
+
+    /**
      * @return string
      */
     public function getId(): string
@@ -141,5 +148,21 @@ class Photo
     public function setExternalHash(string $externalHash): void
     {
         $this->externalHash = $externalHash;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtension(): string
+    {
+        return $this->extension;
+    }
+
+    /**
+     * @param string $extension
+     */
+    public function setExtension(string $extension): void
+    {
+        $this->extension = $extension;
     }
 }

@@ -188,6 +188,7 @@ class FetchGroupCommand extends Command
         $photo->setGroup($group);
         $photo->setExternalId($photoExternalId);
         $photo->setExternalHash($photoExternalHash);
+        $photo->setExtension($photoExtension);
 
         $this->manager->persist($photo);
     }

@@ -40,3 +40,20 @@ services:
             $mimeTypes: '@mime_types'
             $defaultGroupId: '%env(string:DEFAULT_FETCH_GROUP_SUBSCRIBER)%'
 
+    App\Admin\GroupAdmin:
+        public: true
+        arguments:
+            - ~
+            - App\Entity\Group
+            - ~
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Analytics, label: Group }
+
+    App\Admin\SubscriberAdmin:
+        public: true
+        arguments:
+            - ~
+            - App\Entity\Subscriber
+            - ~
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Analytics, label: Subscriber }
