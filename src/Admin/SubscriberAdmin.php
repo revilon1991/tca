@@ -26,6 +26,7 @@ class SubscriberAdmin extends AbstractAdmin
             ])
             ->add('photoList', null, [
                 'template' => 'Admin/subscriber.photoList.html.twig',
+                'header_style' => 'width: 20%',
             ])
         ;
     }
