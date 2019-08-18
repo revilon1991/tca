@@ -66,7 +66,7 @@ class Photo
     /**
      * @var string
      *
-     * @ORM\Column(type="string", options={"default": "jpeg"})
+     * @ORM\Column(type="string")
      */
     private $extension;
 
