@@ -20,6 +20,11 @@ RUN apt-get update && apt-get install -y \
         re2c \
         libmhash-dev \
         file \
+### > tensorflow ###
+        imagemagick \
+        python3 \
+        python3-pip \
+### < tensorflow ###
     && docker-php-ext-install -j$(nproc) intl iconv mbstring mysqli pdo_mysql zip \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd
@@ -37,6 +42,12 @@ RUN printf '[PHP]\ndate.timezone = "Europe/Moscow"\n' > /usr/local/etc/php/conf.
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y tzdata \
     && dpkg-reconfigure --frontend noninteractive tzdata
+
+### > tensorflow ###
+RUN pip3 install --upgrade pip
+RUN pip3 install tensorflow
+RUN pip install setuptools>=41.0.0
+### < tensorflow ###
 
 WORKDIR /var/www
 

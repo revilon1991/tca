@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "482e55ee9e7e12b6ffeb2184c61cfd2a",
+    "content-hash": "a5515cef4c7b49bc8db818dc77ead5b6",
     "packages": [
         {
             "name": "amphp/amp",
@@ -2761,6 +2761,17 @@
                 "uploadable"
             ],
             "time": "2019-03-17T18:16:12+00:00"
+        },
+        {
+            "name": "googlecodelabs/tensorflow-for-poets-2",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googlecodelabs/tensorflow-for-poets-2",
+                "reference": "master"
+            },
+            "type": "library",
+            "time": "2019-04-02T22:09:50+00:00"
         },
         {
             "name": "jdorn/sql-formatter",
@@ -8310,7 +8321,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "amphp/dns": 20,
-        "danog/madelineproto": 20
+        "danog/madelineproto": 20,
+        "googlecodelabs/tensorflow-for-poets-2": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

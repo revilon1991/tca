@@ -17,6 +17,7 @@
 ###< danog/madelineproto ###
 
 ###> docker ###
+/docker/php/data
 /docker/db/data
 /docker/logs
 ###< docker ###

@@ -16,6 +16,7 @@
         "amphp/dns": "dev-master#aa1892bd as 0.9",
         "danog/madelineproto": "dev-master",
         "gedmo/doctrine-extensions": "^2.4",
+        "googlecodelabs/tensorflow-for-poets-2": "dev-master",
         "mybuilder/cronos-bundle": "^2.1",
         "sensio/framework-extra-bundle": "^5.4",
         "sonata-project/admin-bundle": "^3.52",
@@ -82,6 +83,18 @@
         {
             "type": "git",
             "url": "https://github.com/danog/phpseclib"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "googlecodelabs/tensorflow-for-poets-2",
+                "version": "dev-master",
+                "source": {
+                    "url": "https://github.com/googlecodelabs/tensorflow-for-poets-2",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
         }
     ],
     "minimum-stability": "dev",
