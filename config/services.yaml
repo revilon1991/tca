@@ -21,6 +21,10 @@ services:
         tags:
             - { name: doctrine.event_subscriber }
 
+    _instanceof:
+        App\Component\Tensorflow\Provider\TensorflowProviderInterface:
+            tags: ['tensorflow.provider']
+
     App\Service\TelegramAPIService:
         arguments:
             $proxyHost: '%env(string:MADELINEPROTO_CONNECTION_PROXY_HOST)%'
@@ -58,13 +62,9 @@ services:
         tags:
             - { name: sonata.admin, manager_type: orm, group: Analytics, label: Subscriber }
 
-    App\Command\RetrainTensorflowCommand:
-        bind:
-            $tensorflowForPoetsRepositoryPath: '%env(string:TENSORFLOW_FOR_POETS_REPOSITORY_PATH)%'
-            $tensorflowDataPath: '%env(string:TENSORFLOW_DATA_PATH)%'
-            $tensorflowArchitecture: '%env(string:TENSORFLOW_ARCHITECTURE)%'
+    App\Component\Tensorflow\Service\TensorflowService: [!tagged tensorflow.provider]
 
-    App\Command\PredictTensorflowCommand:
+    App\Component\Tensorflow\Provider\TensorflowPoetsProvider:
         bind:
             $tensorflowForPoetsRepositoryPath: '%env(string:TENSORFLOW_FOR_POETS_REPOSITORY_PATH)%'
             $tensorflowDataPath: '%env(string:TENSORFLOW_DATA_PATH)%'

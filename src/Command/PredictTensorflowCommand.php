@@ -4,38 +4,32 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Component\Tensorflow\Dto\TensorflowPoetsImageDto;
+use App\Component\Tensorflow\Exception\TensorflowException;
+use App\Component\Tensorflow\Service\TensorflowService;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
 class PredictTensorflowCommand extends Command
 {
     protected static $defaultName = 'tf:predict';
 
     /**
-     * @var string
+     * @var TensorflowService
      */
-    private $tensorflowForPoetsRepositoryPath;
-
-    /**
-     * @var string
-     */
-    private $tensorflowDataPath;
+    private $tensorflowService;
 
     /**
      * @required
      *
-     * @param string $tensorflowForPoetsRepositoryPath
-     * @param string $tensorflowDataPath
+     * @param TensorflowService $tensorflowService
      */
-    public function dependencyInjection(
-        string $tensorflowForPoetsRepositoryPath,
-        string $tensorflowDataPath
-    ): void {
-        $this->tensorflowForPoetsRepositoryPath = $tensorflowForPoetsRepositoryPath;
-        $this->tensorflowDataPath = $tensorflowDataPath;
+    public function dependencyInjection(TensorflowService $tensorflowService): void
+    {
+        $this->tensorflowService = $tensorflowService;
     }
 
     /**
@@ -44,46 +38,28 @@ class PredictTensorflowCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('pathname_image_entry')
-            ->addOption('write-output', 'w', InputOption::VALUE_NONE)
+            ->addArgument('pathname_image_entry', InputArgument::IS_ARRAY|InputArgument::REQUIRED)
         ;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @throws ExceptionInterface
+     * @throws TensorflowException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $dataPath = $this->tensorflowDataPath;
+        $imagePathnameList = $input->getArgument('pathname_image_entry');
 
-        $command = sprintf('cd %s && python3 -m scripts.label_image ', $this->tensorflowForPoetsRepositoryPath);
+        $tensorflowPoetsImageDtoList = [];
 
-        $options = sprintf('--graph=%s/retrained_graph.pb ', $dataPath);
-        $options .= sprintf('--image=%s ', $input->getArgument('pathname_image_entry'));
-        $options .= sprintf('--labels=%s/retrained_labels.txt ', $dataPath);
-
-        if (!$input->getOption('write-output')) {
-            $options .= '2>/dev/null';
+        foreach ($imagePathnameList as $imagePathname) {
+            $tensorflowPoetsImageDtoList[$imagePathname] = new TensorflowPoetsImageDto(['image' => $imagePathname]);
         }
 
-        $command .= $options;
+        $labelList = $this->tensorflowService->predictList($tensorflowPoetsImageDtoList);
 
-        exec($command, $outputCommand, $returnVar);
-
-        if (!$input->getOption('write-output')) {
-            $predict = array_slice($outputCommand, -5, 1);
-
-            $output->writeln($predict);
-        } else {
-            $output->writeln($outputCommand);
-        }
-
-        if ($returnVar !== 0) {
-            throw new RuntimeException(sprintf(
-                '%s command exit with non zero code (%s)',
-                $command,
-                $returnVar
-            ));
-        }
+        $output->writeln($labelList);
     }
 }
