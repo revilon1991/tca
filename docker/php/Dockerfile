@@ -46,7 +46,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 ### > tensorflow ###
 RUN pip3 install --upgrade pip
 RUN pip3 install tensorflow
-RUN pip install setuptools>=41.0.0
+RUN pip3 install setuptools>=41.0.0
 ### < tensorflow ###
 
 WORKDIR /var/www
