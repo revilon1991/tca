@@ -49,7 +49,7 @@ class PhotoPathExtension extends AbstractExtension
         return sprintf(
             '%s/%s/%s.%s',
             self::PHOTO_PUBLIC_PATH,
-            $this->pathGenerator->generateBigIntPath($photo->getId()),
+            $this->pathGenerator->generateIntPath($photo->getId()),
             $photo->getId(),
             $photo->getExtension()
         );

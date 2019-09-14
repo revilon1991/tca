@@ -99,6 +99,13 @@ class Subscriber
      */
     private $type;
 
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $people;
+
     public function __construct()
     {
         $this->groupList = new ArrayCollection();
@@ -289,5 +296,21 @@ class Subscriber
     public function setExternalHash(string $externalHash): void
     {
         $this->externalHash = $externalHash;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getPeople(): ?bool
+    {
+        return $this->people;
+    }
+
+    /**
+     * @param bool|null $people
+     */
+    public function setPeople(?bool $people): void
+    {
+        $this->people = $people;
     }
 }

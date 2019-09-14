@@ -39,7 +39,7 @@ services:
         bind:
             $defaultGroupId: '%env(string:DEFAULT_FETCH_GROUP_SUBSCRIBER)%'
 
-    App\Command\FetchUserPhoto:
+    App\Command\FetchSubscriberPhoto:
         bind:
             $mimeTypes: '@mime_types'
             $defaultGroupId: '%env(string:DEFAULT_FETCH_GROUP_SUBSCRIBER)%'

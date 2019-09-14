@@ -17,7 +17,6 @@
 ###< danog/madelineproto ###
 
 ###> docker ###
-/docker/php/data
 /docker/db/data
 /docker/logs
 ###< docker ###
@@ -28,3 +27,9 @@
 ###< deploy ###
 /config/deploy/parameters.yaml
 ###> deploy ###
+
+###> tensorflow ###
+!/var/tensorflow
+/var/tensorflow/*
+!/var/tensorflow/.gitkeep
+###< tensorflow ###

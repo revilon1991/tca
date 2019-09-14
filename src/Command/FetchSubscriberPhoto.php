@@ -7,7 +7,6 @@ namespace App\Command;
 use App\Component\IdGenerator\IdGenerator;
 use App\Component\PathGenerator\PathGenerator;
 use App\Dto\InputUserDto;
-use App\Entity\A;
 use App\Entity\Group;
 use App\Entity\Photo;
 use App\Entity\Subscriber;
@@ -26,7 +25,7 @@ use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 /**
  * @Cron(minute="0", hour="1", noLogs=true, server="main")
  */
-class FetchUserPhoto extends Command
+class FetchSubscriberPhoto extends Command
 {
     private const PHOTO_KEY_PATTERN = '%s_%s';
 
@@ -226,7 +225,7 @@ class FetchUserPhoto extends Command
             $path = sprintf(
                 '%s/%s',
                 $this->photoPublicDir,
-                $this->pathGenerator->generateBigIntPath($id)
+                $this->pathGenerator->generateIntPath($id)
             );
 
             !file_exists($path) ? mkdir($path, 0777, true) : null;

@@ -169,7 +169,7 @@ class FetchGroupCommand extends Command
         $path = sprintf(
             '%s/%s',
             $this->photoPublicDir,
-            $this->pathGenerator->generateBigIntPath($id)
+            $this->pathGenerator->generateIntPath($id)
         );
 
         !file_exists($path) ? mkdir($path, 0777, true) : null;

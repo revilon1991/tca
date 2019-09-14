@@ -20,6 +20,7 @@ class SubscriberAdmin extends AbstractAdmin
             ->add('username')
             ->add('phone')
             ->add('type')
+            ->add('people')
             ->add('createdAt')
             ->add('groupList', null, [
                 'template' => 'Admin/subscriber.groupList.html.twig',

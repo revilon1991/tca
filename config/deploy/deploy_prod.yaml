@@ -24,6 +24,7 @@
         ansistrano_shared_paths:
             - 'var/log'
             - 'public/photo'
+            - 'var/tensorflow'
         ansistrano_shared_files:
             - '.env'
 

@@ -65,7 +65,7 @@ class RemovePhotoSubscriber implements EventSubscriber
     {
         $id = $photo->getId();
 
-        $path = $this->pathGenerator->generateBigIntPath($id);
+        $path = $this->pathGenerator->generateIntPath($id);
 
         $filePattern = sprintf(self::FILE_PATTERN, $this->photoPublicDir, $path, $id);
 
