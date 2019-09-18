@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Component\Tensorflow\Exception\TensorflowException;
-use App\UseCase\PeopleClassification\PeopleClassificationHandler;
+use App\UseCase\FetchSubscriberPhoto\FetchSubscriberPhotoHandler;
 use Doctrine\DBAL\DBALException;
 use MyBuilder\Bundle\CronosBundle\Annotation\Cron;
 use Symfony\Component\Console\Command\Command;
@@ -14,37 +13,36 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
 /**
- * @Cron(minute="0", hour="2", noLogs=true, server="main")
+ * @Cron(minute="0", hour="1", noLogs=true, server="main")
  */
-class PeopleClassificationCommand extends Command
+class FetchSubscriberPhotoCommand extends Command
 {
     /**
      * @var string
      */
-    protected static $defaultName = 'classification:people';
+    protected static $defaultName = 'fetch:subscribers:photo';
 
     /**
-     * @var PeopleClassificationHandler
+     * @var FetchSubscriberPhotoHandler
      */
     private $handler;
 
     /**
      * @required
      *
-     * @param PeopleClassificationHandler $handler
+     * @param FetchSubscriberPhotoHandler $handler
      */
-    public function dependencyInjection(
-        PeopleClassificationHandler $handler
-    ): void {
+    public function dependencyInjection(FetchSubscriberPhotoHandler $handler): void
+    {
         $this->handler = $handler;
     }
 
     /**
-     * {@inheritdoc}
+     * @param InputInterface $input
+     * @param OutputInterface $output
      *
-     * @throws DBALException
-     * @throws TensorflowException
      * @throws ExceptionInterface
+     * @throws DBALException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {

@@ -11,7 +11,7 @@ use Generator;
 
 class PeopleClassificationManager
 {
-    private const PREDICT_SAVE_CHUNK = 100;
+    private const UPDATE_CHUNK = 100;
 
     /**
      * @var RowManager
@@ -84,7 +84,7 @@ SQL;
      */
     public function savePredict(array $subscriberPredictList): void
     {
-        foreach (array_chunk($subscriberPredictList, self::PREDICT_SAVE_CHUNK, true) as $chunkList) {
+        foreach (array_chunk($subscriberPredictList, self::UPDATE_CHUNK) as $chunkList) {
             $paramsList = [];
 
             foreach ($chunkList as $subscriberId => $subscriberPredict) {

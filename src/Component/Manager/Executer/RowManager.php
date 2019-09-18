@@ -74,18 +74,25 @@ class RowManager
      * @param string $tableName
      * @param array $paramsList
      * @param bool $isIgnore
+     * @param bool $isPrepareParams
      *
      * @return int
      *
      * @throws DBALException
      */
-    public function insertBulk(string $tableName, array $paramsList, bool $isIgnore = false): int
-    {
+    public function insertBulk(
+        string $tableName,
+        array $paramsList,
+        bool $isIgnore = false,
+        bool $isPrepareParams = true
+    ): int {
         if (empty($paramsList)) {
             return 0;
         }
 
-        $paramsList = $this->prepareInsertParamsList($paramsList);
+        if ($isPrepareParams) {
+            $paramsList = $this->prepareInsertParamsList($paramsList);
+        }
 
         $sql = $this->driver->getInsertBulkSql($tableName, $paramsList, $isIgnore);
 
@@ -97,13 +104,16 @@ class RowManager
      * @param array $params
      * @param array $where
      *
+     * @param bool $isPrepareParams
      * @return int
      *
      * @throws DBALException
      */
-    public function update(string $tableName, array $params, array $where = []): int
+    public function update(string $tableName, array $params, array $where = [], bool $isPrepareParams = true): int
     {
-        $params = $this->prepareUpdateParams($params);
+        if ($isPrepareParams) {
+            $params = $this->prepareUpdateParams($params);
+        }
 
         $sql = $this->driver->getUpdateSql($tableName, $params, $where);
 
@@ -113,18 +123,21 @@ class RowManager
     /**
      * @param string $tableName
      * @param array $paramsList
+     * @param bool $isPrepareParams
      *
      * @return int
      *
      * @throws DBALException
      */
-    public function updateBulk(string $tableName, array $paramsList): int
+    public function updateBulk(string $tableName, array $paramsList, bool $isPrepareParams = true): int
     {
         if (empty($paramsList)) {
             return 0;
         }
 
-        $paramsList = $this->prepareUpdateParamsList($paramsList);
+        if ($isPrepareParams) {
+            $paramsList = $this->prepareUpdateParamsList($paramsList);
+        }
 
         $sql = $this->driver->getUpdateBulkSql($tableName, $paramsList);
 
@@ -149,19 +162,26 @@ class RowManager
      * @param string $tableName
      * @param array $paramsList
      * @param array $replaceFields
+     * @param bool $isPrepareParams
      *
      * @return int
      *
      * @throws DBALException
      */
-    public function upsertBulk(string $tableName, array $paramsList, array $replaceFields): int
-    {
+    public function upsertBulk(
+        string $tableName,
+        array $paramsList,
+        array $replaceFields,
+        bool $isPrepareParams = true
+    ): int {
         if (empty($paramsList)) {
             return 0;
         }
 
-        $paramsList = $this->prepareInsertParamsList($paramsList);
-        $replaceFields = $this->updateReplaceFields($replaceFields);
+        if ($isPrepareParams) {
+            $paramsList = $this->prepareInsertParamsList($paramsList);
+            $replaceFields = $this->updateReplaceFields($replaceFields);
+        }
 
         $sql = $this->driver->getUpsertBulkSql($tableName, $paramsList, $replaceFields);
 
@@ -282,6 +302,21 @@ class RowManager
         $stmt->closeCursor();
 
         return $result;
+    }
+
+    public function beginTransaction(): void
+    {
+        $this->driver->beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        $this->driver->commit();
+    }
+
+    public function rollBack(): void
+    {
+        $this->driver->rollBack();
     }
 
     /**

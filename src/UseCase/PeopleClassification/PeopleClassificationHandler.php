@@ -10,7 +10,7 @@ use App\Component\Tensorflow\Exception\TensorflowException;
 use App\Component\Tensorflow\Service\TensorflowService;
 use App\Enum\ClassificationEnum;
 use Doctrine\DBAL\DBALException;
-use Symfony\Component\Console\Output\OutputInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
 class PeopleClassificationHandler
@@ -36,31 +36,37 @@ class PeopleClassificationHandler
     private $photoPublicDir;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param PeopleClassificationManager $manager
      * @param TensorflowService $tensorflowService
      * @param PathGenerator $pathGenerator
      * @param string $photoPublicDir
+     * @param LoggerInterface $logger
      */
     public function __construct(
         PeopleClassificationManager $manager,
         TensorflowService $tensorflowService,
         PathGenerator $pathGenerator,
-        string $photoPublicDir
+        string $photoPublicDir,
+        LoggerInterface $logger
     ) {
         $this->manager = $manager;
         $this->tensorflowService = $tensorflowService;
         $this->pathGenerator = $pathGenerator;
         $this->photoPublicDir = $photoPublicDir;
+        $this->logger = $logger;
     }
 
     /**
-     * @param OutputInterface $output
-     *
      * @throws DBALException
      * @throws ExceptionInterface
      * @throws TensorflowException
      */
-    public function handle(OutputInterface $output): void
+    public function handle(): void
     {
         $subscriberPredictList = [];
 
@@ -74,7 +80,7 @@ class PeopleClassificationHandler
 
             $predictCompleteCount = count($subscriberPredictList);
 
-            $output->writeln("Predict complete for $predictCompleteCount/$subscriberPredictCount");
+            $this->logger->debug("Predict complete for $predictCompleteCount/$subscriberPredictCount");
         }
 
         $this->manager->savePredict($subscriberPredictList);

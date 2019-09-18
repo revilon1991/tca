@@ -188,6 +188,21 @@ class MysqlDriver
         return sprintf('DELETE FROM `%s` WHERE id IN (%s)', $tableName, implode(', ', $idList));
     }
 
+    public function beginTransaction(): void
+    {
+        $this->connection->beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        $this->connection->commit();
+    }
+
+    public function rollBack(): void
+    {
+        $this->connection->rollBack();
+    }
+
     /**
      * @param string|array $data
      *

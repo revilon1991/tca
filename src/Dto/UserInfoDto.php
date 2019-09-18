@@ -63,44 +63,6 @@ class UserInfoDto implements DtoResolverInterface
     private $phone;
 
     /**
-     * {@inheritdoc}
-     *
-     * @throws ReflectionException
-     */
-    protected function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setRequired([
-            'externalId',
-            'accessHash',
-            'type',
-            'lastUpdate',
-        ]);
-
-        $resolver->setDefined([
-            'firstName',
-            'lastName',
-            'username',
-            'about',
-            'phone',
-        ]);
-
-        $resolver->setNormalizer('lastUpdate', static function (Options $options, int $value) {
-            $dateTimeZone = new DateTimeZone(date_default_timezone_get());
-
-            return (new DateTime())->setTimezone($dateTimeZone)->setTimestamp($value);
-        });
-
-        $resolver->setNormalizer('externalId', function (Options $options, int $value) {
-            return (string)$value;
-        });
-        $resolver->setNormalizer('accessHash', function (Options $options, int $value) {
-            return (string)$value;
-        });
-
-        $resolver->setAllowedValues('type', SubscriberTypeEnum::getList());
-    }
-
-    /**
      * @return string
      */
     public function getExternalId(): string
@@ -170,5 +132,43 @@ class UserInfoDto implements DtoResolverInterface
     public function getPhone(): ?string
     {
         return $this->phone;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws ReflectionException
+     */
+    protected function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setRequired([
+            'externalId',
+            'accessHash',
+            'type',
+            'lastUpdate',
+        ]);
+
+        $resolver->setDefined([
+            'firstName',
+            'lastName',
+            'username',
+            'about',
+            'phone',
+        ]);
+
+        $resolver->setNormalizer('lastUpdate', static function (Options $options, $value) {
+            $dateTimeZone = new DateTimeZone(date_default_timezone_get());
+
+            return (new DateTime())->setTimezone($dateTimeZone)->setTimestamp($value);
+        });
+
+        $resolver->setNormalizer('externalId', function (Options $options, $value) {
+            return (string)$value;
+        });
+        $resolver->setNormalizer('accessHash', function (Options $options, $value) {
+            return (string)$value;
+        });
+
+        $resolver->setAllowedValues('type', SubscriberTypeEnum::getList());
     }
 }

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Component\Telegram\Provider;
 
+use App\Dto\ChannelInfoDto;
 use App\Dto\InputUserDto;
 use App\Dto\UserInfoDto;
 use danog\MadelineProto\API;
@@ -12,7 +13,7 @@ use danog\MadelineProto\Stream\Proxy\SocksProxy;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
-class TelegramAPIService
+class TelegramProvider
 {
     private const SESSION_BOT_FILENAME = 'session.bot.madeline';
     private const SESSION_USER_FILENAME = 'session.user.madeline';
@@ -168,7 +169,7 @@ class TelegramAPIService
      *
      * @return array
      */
-    public function getUserPhotoMetaList(InputUserDto $inputUserDto): array
+    public function getSubscriberPhotoMetaList(InputUserDto $inputUserDto): array
     {
         $this->initialization();
 
@@ -186,13 +187,29 @@ class TelegramAPIService
     /**
      * @param string $channelId
      *
-     * @return array
+     * @return ChannelInfoDto
+     *
+     * @throws ExceptionInterface
      */
-    public function getChannelInfo(string $channelId): array
+    public function getChannelInfo(string $channelId): ChannelInfoDto
     {
         $this->initialization();
 
-        return $this->madelineProto->get_full_info($channelId);
+        $fullInfo = $this->madelineProto->get_full_info($channelId);
+
+        return new ChannelInfoDto([
+            'externalId' => $fullInfo['Chat']['id'],
+            'externalHash' => $fullInfo['Chat']['access_hash'],
+            'title' => $fullInfo['Chat']['title'],
+            'username' => $fullInfo['Chat']['username'],
+            'about' => $fullInfo['full']['about'],
+            'subscriberCount' => $fullInfo['full']['participants_count'],
+            'lastUpdate' => $fullInfo['last_update'],
+            'type' => $fullInfo['type'],
+            'photoMeta' => $fullInfo['full']['chat_photo'],
+            'photoId' => $fullInfo['full']['chat_photo']['id'],
+            'photoHash' => $fullInfo['full']['chat_photo']['access_hash'],
+        ]);
     }
 
     /**

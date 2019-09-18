@@ -25,7 +25,7 @@ services:
         App\Component\Tensorflow\Provider\TensorflowProviderInterface:
             tags: ['tensorflow.provider']
 
-    App\Service\TelegramAPIService:
+    App\Component\Telegram\Provider\TelegramProvider:
         arguments:
             $proxyHost: '%env(string:MADELINEPROTO_CONNECTION_PROXY_HOST)%'
             $proxyPort: '%env(int:MADELINEPROTO_CONNECTION_PROXY_PORT)%'
@@ -34,15 +34,6 @@ services:
             $appId: '%env(string:MADELINEPROTO_CONNECTION_API_ID)%'
             $appHash: '%env(string:MADELINEPROTO_CONNECTION_API_HASH)%'
             $botToken: '%env(string:MADELINEPROTO_CONNECTION_BOT_TOKEN)%'
-
-    App\Command\FetchGroupSubscriberCommand:
-        bind:
-            $defaultGroupId: '%env(string:DEFAULT_FETCH_GROUP_SUBSCRIBER)%'
-
-    App\Command\FetchSubscriberPhoto:
-        bind:
-            $mimeTypes: '@mime_types'
-            $defaultGroupId: '%env(string:DEFAULT_FETCH_GROUP_SUBSCRIBER)%'
 
     App\Admin\GroupAdmin:
         public: true
@@ -68,3 +59,5 @@ services:
         bind:
             $tensorflowForPoetsRepositoryPath: '%env(string:TENSORFLOW_FOR_POETS_REPOSITORY_PATH)%'
             $tensorflowDataPath: '%env(string:TENSORFLOW_DATA_PATH)%'
+
+    Symfony\Component\Mime\MimeTypesInterface: '@mime_types'
