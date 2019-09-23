@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Component\Tensorflow\Dto\TensorflowPoetsImageDto;
+use App\Component\Tensorflow\Dto\TensorflowPoetsPredictDto;
 use App\Component\Tensorflow\Exception\TensorflowException;
 use App\Component\Tensorflow\Service\TensorflowService;
 use Symfony\Component\Console\Command\Command;
@@ -38,6 +38,7 @@ class PredictTensorflowCommand extends Command
     protected function configure(): void
     {
         $this
+            ->addArgument('classification_model', InputArgument::REQUIRED)
             ->addArgument('pathname_image_entry', InputArgument::IS_ARRAY|InputArgument::REQUIRED)
         ;
     }
@@ -50,12 +51,16 @@ class PredictTensorflowCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
+        $classificationModel = $input->getArgument('classification_model');
         $imagePathnameList = $input->getArgument('pathname_image_entry');
 
         $tensorflowPoetsImageDtoList = [];
 
         foreach ($imagePathnameList as $imagePathname) {
-            $tensorflowPoetsImageDtoList[$imagePathname] = new TensorflowPoetsImageDto(['image' => $imagePathname]);
+            $tensorflowPoetsImageDtoList[$imagePathname] = new TensorflowPoetsPredictDto([
+                'classificationModel' => $classificationModel,
+                'image' => $imagePathname,
+            ]);
         }
 
         $labelList = $this->tensorflowService->predictList($tensorflowPoetsImageDtoList);

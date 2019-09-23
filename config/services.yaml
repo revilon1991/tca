@@ -58,6 +58,5 @@ services:
     App\Component\Tensorflow\Provider\TensorflowPoetsProvider:
         bind:
             $tensorflowForPoetsRepositoryPath: '%env(string:TENSORFLOW_FOR_POETS_REPOSITORY_PATH)%'
-            $tensorflowDataPath: '%env(string:TENSORFLOW_DATA_PATH)%'
 
     Symfony\Component\Mime\MimeTypesInterface: '@mime_types'

@@ -1,0 +1,19 @@
+{% extends '@SonataAdmin/CRUD/list_boolean.html.twig' %}
+
+{% block field %}
+    {% if value %}
+        {% set text = 'label_type_yes'|trans({}, 'SonataAdminBundle') %}
+    {% else %}
+        {% set text = 'label_type_no'|trans({}, 'SonataAdminBundle') %}
+    {% endif %}
+
+    {% if field_description.options.inverse|default(false) ? not value : value %}
+        {% set class = 'label-success' %}
+    {% else %}
+        {% set class = 'label-danger' %}
+    {% endif %}
+
+    {% if value is not null %}
+        <span class="label {{ class }}">{{ text }}</span>
+    {% endif %}
+{% endblock %}

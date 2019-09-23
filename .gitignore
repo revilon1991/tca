@@ -31,5 +31,14 @@
 ###> tensorflow ###
 !/var/tensorflow
 /var/tensorflow/*
-!/var/tensorflow/.gitkeep
+!/var/tensorflow/models
+/var/tensorflow/models/*
+!/var/tensorflow/models/poets
+/var/tensorflow/models/poets/*
+!/var/tensorflow/models/poets/male
+/var/tensorflow/models/poets/male/*
+!/var/tensorflow/models/poets/male/.gitkeep
+!/var/tensorflow/models/poets/people
+/var/tensorflow/models/poets/people/*
+!/var/tensorflow/models/poets/people/.gitkeep
 ###< tensorflow ###

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Component\IdGenerator\IdGenerator;
+use App\Doctrine\Dbal\Type\MaleClassificationEnumType;
 use App\Doctrine\Dbal\Type\SubscriberTypeEnumType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -105,6 +106,13 @@ class Subscriber
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $people;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(type=MaleClassificationEnumType::NAME, nullable=true)
+     */
+    private $male;
 
     public function __construct()
     {
@@ -312,5 +320,13 @@ class Subscriber
     public function setPeople(?bool $people): void
     {
         $this->people = $people;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMale(): ?string
+    {
+        return $this->male;
     }
 }

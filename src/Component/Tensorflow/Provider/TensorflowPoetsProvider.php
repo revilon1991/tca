@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Component\Tensorflow\Provider;
 
-use App\Component\Tensorflow\Dto\TensorflowImageInterface;
-use App\Component\Tensorflow\Dto\TensorflowPoetsImageDto;
+use App\Component\Tensorflow\Dto\TensorflowPoetsPredictDto;
+use App\Component\Tensorflow\Dto\TensorflowPredictInterface;
+use App\Component\Tensorflow\Enum\ClassificationEnum;
 use App\Component\Tensorflow\Exception\TensorflowException;
-use function implode;
+use ReflectionException;
+use function exec;
 use function file_exists;
+use function implode;
 use function preg_match_all;
 use function sprintf;
-use function exec;
 
 class TensorflowPoetsProvider implements TensorflowProviderInterface
 {
@@ -31,30 +33,33 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
     /**
      * @var string
      */
-    private $tensorflowDataPath;
+    private $projectDir;
 
     /**
      * @required
      *
      * @param string $tensorflowForPoetsRepositoryPath
-     * @param string $tensorflowDataPath
+     * @param string $projectDir
      */
     public function dependencyInjection(
         string $tensorflowForPoetsRepositoryPath,
-        string $tensorflowDataPath
+        string $projectDir
     ): void {
         $this->tensorflowForPoetsRepositoryPath = $tensorflowForPoetsRepositoryPath;
-        $this->tensorflowDataPath = $tensorflowDataPath;
+        $this->projectDir = $projectDir;
     }
 
     /**
      * {@inheritdoc}
      *
+     * @throws ReflectionException
      * @throws TensorflowException
      */
-    public function retrain(): string
+    public function retrain(string $classificationModel): string
     {
-        [$outputCommand, $returnCode] = $this->doRetrain();
+        $modelPath = $this->getModelPath($classificationModel);
+
+        [$outputCommand, $returnCode] = $this->doRetrain($modelPath);
 
         if ($returnCode !== 0) {
             $providerClassName = self::class;
@@ -68,15 +73,16 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
     /**
      * {@inheritdoc}
      *
+     * @throws ReflectionException
      * @throws TensorflowException
      */
-    public function predict(TensorflowImageInterface $image): ?string
+    public function predict(TensorflowPredictInterface $image): ?string
     {
         if (!file_exists($image->getImage())) {
             throw new TensorflowException("File '$image' do not exist");
         }
 
-        [$outputCommand, $returnCode] = $this->doPredict($image->getImage());
+        [$outputCommand, $returnCode] = $this->doPredict($image->getImage(), $image->getClassificationModel());
 
         if ($returnCode !== 0) {
             $providerClassName = self::class;
@@ -104,18 +110,44 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function supports(TensorflowImageInterface $entryDto): bool
+    public function supports(TensorflowPredictInterface $entryDto): bool
     {
-        return $entryDto instanceof TensorflowPoetsImageDto;
+        return $entryDto instanceof TensorflowPoetsPredictDto;
     }
 
     /**
+     * @param string $classificationModel
+     *
+     * @return string
+     *
+     * @throws TensorflowException
+     * @throws ReflectionException
+     */
+    private function getModelPath(string $classificationModel): string
+    {
+        switch ($classificationModel) {
+            case ClassificationEnum::PEOPLE:
+                return "$this->projectDir/var/tensorflow/models/poets/people";
+
+            case ClassificationEnum::MALE:
+                return "$this->projectDir/var/tensorflow/models/poets/male";
+
+            default:
+                $availableClassification = implode(', ', ClassificationEnum::getEnumList());
+
+                throw new TensorflowException(
+                    "Classification model '$classificationModel' not found. Available $availableClassification"
+                );
+        }
+    }
+
+    /**
+     * @param string $modelPath
+     *
      * @return array
      */
-    private function doRetrain(): array
+    private function doRetrain(string $modelPath): array
     {
-        $dataPath = $this->tensorflowDataPath;
-
         $command = sprintf('cd %s && python3 -m scripts.retrain ', $this->tensorflowForPoetsRepositoryPath);
 
         $bottlenecksDirectoryName = self::BOTTLENECKS_DIRECTORY_NAME;
@@ -127,13 +159,13 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
         $retrainedImageDirectoryName = self::RETRAINED_IMAGE_DIRECTORY_NAME;
 
         $options = '--how_many_training_steps=500 ';
-        $options .= "--bottleneck_dir=$dataPath/$bottlenecksDirectoryName ";
-        $options .= "--model_dir=$dataPath/$modelsDirectoryName ";
-        $options .= "--output_graph=$dataPath/$retrainedGraphFilename ";
-        $options .= "--output_labels=$dataPath/$retrainedLabelsFilename ";
+        $options .= "--bottleneck_dir=$modelPath/$bottlenecksDirectoryName ";
+        $options .= "--model_dir=$modelPath/$modelsDirectoryName ";
+        $options .= "--output_graph=$modelPath/$retrainedGraphFilename ";
+        $options .= "--output_labels=$modelPath/$retrainedLabelsFilename ";
         $options .= "--architecture=$tensorflowMobilenetArchitecture ";
-        $options .= "--summaries_dir=$dataPath/$trainingSummariesDirectoryName/$tensorflowMobilenetArchitecture ";
-        $options .= "--image_dir=$dataPath/$retrainedImageDirectoryName ";
+        $options .= "--summaries_dir=$modelPath/$trainingSummariesDirectoryName/$tensorflowMobilenetArchitecture ";
+        $options .= "--image_dir=$modelPath/$retrainedImageDirectoryName ";
 
         $command .= $options;
 
@@ -144,12 +176,16 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
 
     /**
      * @param string $image
+     * @param string $classificationModel
      *
      * @return array
+     *
+     * @throws ReflectionException
+     * @throws TensorflowException
      */
-    private function doPredict(string $image): array
+    private function doPredict(string $image, string $classificationModel): array
     {
-        $dataPath = $this->tensorflowDataPath;
+        $dataPath = $this->getModelPath($classificationModel);
 
         $command = "cd $this->tensorflowForPoetsRepositoryPath && python3 -m scripts.label_image ";
 

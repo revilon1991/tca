@@ -4,30 +4,32 @@ declare(strict_types=1);
 
 namespace App\Component\Tensorflow\Provider;
 
-use App\Component\Tensorflow\Dto\TensorflowImageInterface;
+use App\Component\Tensorflow\Dto\TensorflowPredictInterface;
 
 interface TensorflowProviderInterface
 {
     /**
      * Build model
      *
+     * @param string $classificationModel
+     *
      * @return string
      */
-    public function retrain(): string;
+    public function retrain(string $classificationModel): string;
 
     /**
-     * Classification image pathname
+     * Classification people image pathname
      *
-     * @param TensorflowImageInterface $image
+     * @param TensorflowPredictInterface $image
      *
      * @return string|null
      */
-    public function predict(TensorflowImageInterface $image): ?string;
+    public function predict(TensorflowPredictInterface $image): ?string;
 
     /**
-     * @param TensorflowImageInterface $image
+     * @param TensorflowPredictInterface $image
      *
      * @return bool
      */
-    public function supports(TensorflowImageInterface $image): bool;
+    public function supports(TensorflowPredictInterface $image): bool;
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Component\Tensorflow\Service;
 
-use App\Component\Tensorflow\Dto\TensorflowImageInterface;
+use App\Component\Tensorflow\Dto\TensorflowPredictInterface;
 use App\Component\Tensorflow\Exception\TensorflowException;
 use App\Component\Tensorflow\Provider\TensorflowProviderInterface;
 use function get_class;
@@ -25,13 +25,13 @@ class TensorflowService
     }
 
     /**
-     * @param TensorflowImageInterface $tensorflowImage
+     * @param TensorflowPredictInterface $tensorflowImage
      *
      * @return string|null
      *
      * @throws TensorflowException
      */
-    public function predict(TensorflowImageInterface $tensorflowImage): ?string
+    public function predict(TensorflowPredictInterface $tensorflowImage): ?string
     {
         foreach ($this->providerList as $tensorflowProvider) {
             if ($tensorflowProvider->supports($tensorflowImage)) {
@@ -45,7 +45,7 @@ class TensorflowService
     }
 
     /**
-     * @param TensorflowImageInterface[] $tensorflowImageList
+     * @param TensorflowPredictInterface[] $tensorflowImageList
      *
      * @return array
      *

@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\UseCase\PeopleClassification;
 
 use App\Component\PathGenerator\PathGenerator;
-use App\Component\Tensorflow\Dto\TensorflowPoetsImageDto;
+use App\Component\Tensorflow\Dto\TensorflowPoetsPredictDto;
+use App\Component\Tensorflow\Enum\ClassificationEnum;
 use App\Component\Tensorflow\Exception\TensorflowException;
 use App\Component\Tensorflow\Service\TensorflowService;
-use App\Enum\ClassificationEnum;
+use App\Enum\PeopleClassificationEnum;
 use Doctrine\DBAL\DBALException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
@@ -68,80 +69,73 @@ class PeopleClassificationHandler
      */
     public function handle(): void
     {
-        $subscriberPredictList = [];
+        $peoplePredictPhotoList = [];
+        $peoplePredictSubscriberList = [];
 
         $subscriberPredictCount = $this->manager->getSubscriberPredictCount();
 
         foreach ($this->manager->getSubscriberPhotoList() as $subscriberId => $subscriberPhotos) {
-            $subscriberPhotoIdList = explode(',', $subscriberPhotos['photo_ids']);
+            $photoIdList = explode(',', $subscriberPhotos['photo_ids']);
             $extensionList = explode(',', $subscriberPhotos['extensions']);
 
-            $subscriberPredictList[$subscriberId] = $this->isPeople($subscriberPhotoIdList, $extensionList);
+            $peoplePredictSubscriberPhotoList = $this->getPeoplePredictPhotoList($photoIdList, $extensionList);
 
-            $predictCompleteCount = count($subscriberPredictList);
+            $peoplePredictPhotoList[] = $peoplePredictSubscriberPhotoList;
+            $peoplePredictSubscriberList[$subscriberId] = $this->isSubscriberPeople($peoplePredictSubscriberPhotoList);
 
-            $this->logger->debug("Predict complete for $predictCompleteCount/$subscriberPredictCount");
+            $peoplePredictSubscriberCount = count($peoplePredictSubscriberList);
+
+            $this->logger->debug("Predict people complete for $peoplePredictSubscriberCount/$subscriberPredictCount");
         }
 
-        $this->manager->savePredict($subscriberPredictList);
+        $peoplePredictPhotoList = array_replace(...$peoplePredictPhotoList);
+
+        $this->manager->saveSubscriberPredict($peoplePredictSubscriberList);
+        $this->manager->savePhotoPredict($peoplePredictPhotoList);
     }
 
     /**
-     * @param array $photoIdList
+     * @param array $subscriberPhotoIdList
      * @param array $extensionList
      *
-     * @return bool
+     * @return bool[]
      *
      * @throws ExceptionInterface
      * @throws TensorflowException
      */
-    private function isPeople(array $photoIdList, array $extensionList): bool
+    private function getPeoplePredictPhotoList(array $subscriberPhotoIdList, array $extensionList): array
     {
-        $classificationList = [];
+        $peoplePredictPhotoList = [];
 
-        foreach ($photoIdList as $key => $photoId) {
+        foreach ($subscriberPhotoIdList as $key => $photoId) {
             $path = $this->pathGenerator->generateIntPath($photoId);
             $extension = $extensionList[$key];
 
             $imagePathname = "$this->photoPublicDir/$path/$photoId.$extension";
 
-            $classificationList[] = $this->predict($imagePathname);
+            $tensorflowPoetsImageDto = new TensorflowPoetsPredictDto([
+                'classificationModel' => ClassificationEnum::PEOPLE,
+                'image' => $imagePathname,
+            ]);
+
+            $predict = $this->tensorflowService->predict($tensorflowPoetsImageDto);
+
+            $peoplePredictPhotoList[$photoId] = $predict === PeopleClassificationEnum::PEOPLE;
         }
 
-        $classificationCountValueList = array_count_values($classificationList);
-
-        if (!isset($classificationCountValueList[ClassificationEnum::PEOPLE])) {
-            return false;
-        }
-
-        $countUndefined = $classificationCountValueList[ClassificationEnum::UNDEFINED] ?? 0;
-        $countPeople = $classificationCountValueList[ClassificationEnum::UNDEFINED] ?? 0;
-
-        return $countUndefined <= $countPeople;
+        return $peoplePredictPhotoList;
     }
 
     /**
-     * @param string $imagePathname
+     * @param bool[] $peoplePredictPhotoList
      *
-     * @return string
-     *
-     * @throws ExceptionInterface
-     * @throws TensorflowException
+     * @return bool
      */
-    private function predict(string $imagePathname): string
+    private function isSubscriberPeople(array $peoplePredictPhotoList): bool
     {
-        if (!file_exists($imagePathname)) {
-            return ClassificationEnum::UNDEFINED;
-        }
+        $countPeople = count(array_filter($peoplePredictPhotoList));
+        $countUndefined = count($peoplePredictPhotoList) - $countPeople;
 
-        $tensorflowPoetsImageDto = new TensorflowPoetsImageDto(['image' => $imagePathname]);
-
-        $predict = $this->tensorflowService->predict($tensorflowPoetsImageDto);
-
-        if ($predict === ClassificationEnum::PEOPLE) {
-            return ClassificationEnum::PEOPLE;
-        }
-
-        return ClassificationEnum::UNDEFINED;
+        return $countUndefined <= $countPeople;
     }
 }
