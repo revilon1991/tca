@@ -6,9 +6,22 @@ namespace App\Admin;
 
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\ListMapper;
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 
 class GroupAdmin extends AbstractAdmin
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected function configureRoutes(RouteCollection $collection): void
+    {
+        $collection->clearExcept([
+            'list',
+            'create',
+        ]);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -19,11 +32,17 @@ class GroupAdmin extends AbstractAdmin
             ->add('type')
             ->add('title')
             ->add('about')
-            ->add('subscriberCount')
-            ->add('lastUpdate')
             ->add('photoList', null, [
                 'template' => 'Admin/group.photoList.html.twig',
             ])
         ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function configureFormFields(FormMapper $form): void
+    {
+        $form->add('username');
     }
 }

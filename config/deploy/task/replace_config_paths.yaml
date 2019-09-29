@@ -1,0 +1,7 @@
+---
+-
+    name: '{{ deploy_from_branch }} | Replace supervisor config path'
+    replace:
+        path: '{{ ansistrano_release_path.stdout }}/config/supervisor/supervisor.conf'
+        regexp: '__RELEASE_CONSOLE_PATH__'
+        replace: '{{ release_console_path }}'

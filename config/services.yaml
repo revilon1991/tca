@@ -1,4 +1,5 @@
 parameters:
+    tarantool.queue.runtime_mode: false
 
 services:
     _defaults:
@@ -7,6 +8,7 @@ services:
         bind:
             $projectDir: '%kernel.project_dir%'
             $photoPublicDir: '%kernel.project_dir%/public/photo'
+            $tarantoolQueueRuntimeMode: '%tarantool.queue.runtime_mode%'
 
     App\:
         resource: '../src/*'
@@ -24,6 +26,10 @@ services:
     _instanceof:
         App\Component\Tensorflow\Provider\TensorflowProviderInterface:
             tags: ['tensorflow.provider']
+        App\Component\Tarantool\Consumer\AbstractConsumer:
+            tags: ['tarantool.queue.consumer']
+        Sonata\AdminBundle\Controller\CRUDController:
+            tags: ['controller.service_arguments']
 
     App\Component\Telegram\Provider\TelegramProvider:
         arguments:
@@ -40,7 +46,7 @@ services:
         arguments:
             - ~
             - App\Entity\Group
-            - ~
+            - App\Admin\Controller\GroupController
         tags:
             - { name: sonata.admin, manager_type: orm, group: Analytics, label: Group }
 
@@ -60,3 +66,10 @@ services:
             $tensorflowForPoetsRepositoryPath: '%env(string:TENSORFLOW_FOR_POETS_REPOSITORY_PATH)%'
 
     Symfony\Component\Mime\MimeTypesInterface: '@mime_types'
+
+    Tarantool\Client\Client:
+        factory: ['Tarantool\Client\Client', 'fromDsn']
+        arguments:
+            - '%env(TARANTOOL_URL)%'
+
+    App\Component\Tarantool\Handler\ConsumerHandler: [!tagged tarantool.queue.consumer]

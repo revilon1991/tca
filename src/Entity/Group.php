@@ -6,7 +6,6 @@ namespace App\Entity;
 
 use App\Component\IdGenerator\IdGenerator;
 use App\Doctrine\Dbal\Type\GroupTypeEnumType;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -81,18 +80,11 @@ class Group
     private $username;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(type="text", nullable=true)
      */
     private $about;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(type="integer")
-     */
-    private $subscriberCount;
 
     /**
      * @var Collection
@@ -100,14 +92,6 @@ class Group
      * @ORM\OneToMany(targetEntity=Photo::class, mappedBy="group", cascade={"persist", "remove"})
      */
     private $photoList;
-
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $lastUpdate;
-
 
     public function __construct()
     {
@@ -182,7 +166,7 @@ class Group
     /**
      * @return string
      */
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -196,9 +180,9 @@ class Group
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAbout(): string
+    public function getAbout(): ?string
     {
         return $this->about;
     }
@@ -209,22 +193,6 @@ class Group
     public function setAbout(string $about): void
     {
         $this->about = $about;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSubscriberCount(): int
-    {
-        return $this->subscriberCount;
-    }
-
-    /**
-     * @param int $subscriberCount
-     */
-    public function setSubscriberCount(int $subscriberCount): void
-    {
-        $this->subscriberCount = $subscriberCount;
     }
 
     /**
@@ -247,22 +215,6 @@ class Group
         $this->photoList->add($photo);
 
         $photo->setGroup($this);
-    }
-
-    /**
-     * @return DateTime
-     */
-    public function getLastUpdate(): DateTime
-    {
-        return $this->lastUpdate;
-    }
-
-    /**
-     * @param DateTime $lastUpdate
-     */
-    public function setLastUpdate(DateTime $lastUpdate): void
-    {
-        $this->lastUpdate = $lastUpdate;
     }
 
     /**

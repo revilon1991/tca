@@ -18,6 +18,7 @@
 
 ###> docker ###
 /docker/db/data
+/docker/tarantool/data
 /docker/logs
 ###< docker ###
 

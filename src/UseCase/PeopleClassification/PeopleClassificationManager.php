@@ -11,7 +11,7 @@ use Generator;
 
 class PeopleClassificationManager
 {
-    private const UPDATE_CHUNK = 100;
+    private const UPSERT_CHUNK = 100;
 
     /**
      * @var RowManager
@@ -37,7 +37,7 @@ class PeopleClassificationManager
     {
         $sql = <<<SQL
             select count(distinct s.id)
-            from tca_db.subscriber s
+            from subscriber s
             inner join photo p on s.id = p.subscriber_id
             where s.people is null
 SQL;
@@ -56,21 +56,21 @@ SQL;
     {
         $sql = <<<SQL
                 select
-                    s.id subscriber_id,
-                    group_concat(p.id) photo_ids,
-                    group_concat(p.extension) as extensions
+                    gs.subscriber_id,
+                    group_concat(distinct gs.group_id) group_ids,
+                    group_concat(distinct concat(p.id, '.', p.extension)) photo_names
                 from subscriber s
-                inner join photo p on s.id = p.subscriber_id
-                where s.people is null
-                group by subscriber_id
+                    inner join photo p on s.id = p.subscriber_id
+                    inner join group_subscriber gs on s.id = gs.subscriber_id
+                group by gs.subscriber_id
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);
 
         while ($result = $stmt->fetch()) {
             yield $result['subscriber_id'] => [
-                'photo_ids' => $result['photo_ids'],
-                'extensions' => $result['extensions'],
+                'group_ids' => $result['group_ids'],
+                'photo_names' => $result['photo_names'],
             ];
         }
 
@@ -78,44 +78,28 @@ SQL;
     }
 
     /**
-     * @param array $subscriberPredictList
+     * @param array $countGroupPeople
      *
      * @throws DBALException
      */
-    public function saveSubscriberPredict(array $subscriberPredictList): void
+    public function saveReportSubscriberPredictPeople(array $countGroupPeople): void
     {
-        foreach (array_chunk($subscriberPredictList, self::UPDATE_CHUNK, true) as $chunkList) {
+        $now = date('Y-m-d');
+
+        foreach (array_chunk($countGroupPeople, self::UPSERT_CHUNK, true) as $chunkList) {
             $paramsList = [];
 
-            foreach ($chunkList as $subscriberId => $subscriberPredict) {
+            foreach ($chunkList as $groupId => $countPeople) {
                 $paramsList[] = [
-                    'id' => $subscriberId,
-                    'people' => (int)$subscriberPredict,
+                    'date' => $now,
+                    'group_id' => $groupId,
+                    'count_people' => $countPeople,
                 ];
             }
 
-            $this->manager->updateBulk('subscriber', $paramsList);
-        }
-    }
-
-    /**
-     * @param array $subscriberPredictList
-     *
-     * @throws DBALException
-     */
-    public function savePhotoPredict(array $subscriberPredictList): void
-    {
-        foreach (array_chunk($subscriberPredictList, self::UPDATE_CHUNK, true) as $chunkList) {
-            $paramsList = [];
-
-            foreach ($chunkList as $subscriberId => $subscriberPredict) {
-                $paramsList[] = [
-                    'id' => $subscriberId,
-                    'people' => (int)$subscriberPredict,
-                ];
-            }
-
-            $this->manager->updateBulk('photo', $paramsList);
+            $this->manager->upsertBulk('report_group', $paramsList, [
+                'count_people',
+            ]);
         }
     }
 }

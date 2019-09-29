@@ -16,22 +16,18 @@ RUN apt-get update && apt-get install -y \
         g++ \
         iputils-ping \
         nano \
-        libgmp-dev \
         re2c \
         libmhash-dev \
         file \
-### > tensorflow ###
+        supervisor \
+###> tensorflow ###
         imagemagick \
         python3 \
         python3-pip \
-### < tensorflow ###
+###< tensorflow ###
     && docker-php-ext-install -j$(nproc) intl iconv mbstring mysqli pdo_mysql zip \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install -j$(nproc) gd
-
-RUN ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/local/include/
-RUN docker-php-ext-configure gmp
-RUN docker-php-ext-install gmp
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -43,12 +39,28 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y tzdata \
     && dpkg-reconfigure --frontend noninteractive tzdata
 
-### > tensorflow ###
+###> tarantool ###
+RUN cd /tmp && \
+    git clone -b php7-v2 https://github.com/tarantool/tarantool-php.git && \
+    cd ./tarantool-php && \
+    /usr/local/bin/phpize && \
+    ./configure && \
+    make && \
+    make install
+RUN echo "extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/tarantool.so" >> /usr/local/etc/php/conf.d/20-tarantool.ini
+###> tarantool ###
+
+###> tensorflow ###
 RUN pip3 install --upgrade pip
 RUN pip3 install tensorflow
-RUN pip3 install setuptools>=41.0.0
-### < tensorflow ###
+RUN pip3 install 'setuptools>=41.0.0'
+###< tensorflow ###
 
-WORKDIR /var/www
+RUN docker-php-ext-install pcntl
 
-CMD ["php-fpm"]
+WORKDIR /app
+
+CMD cp config/supervisor/supervisor.conf /etc/supervisor/conf.d/ && \
+    sed -i -e 's/__RELEASE_CONSOLE_PATH__/\/app\/bin\/console/g' /etc/supervisor/conf.d/supervisor.conf && \
+    service supervisor start && \
+    php-fpm

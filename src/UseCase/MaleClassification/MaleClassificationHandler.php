@@ -69,33 +69,61 @@ class MaleClassificationHandler
      */
     public function handle(): void
     {
-        $subscriberPredictList = [];
+        $peoplePredictSubscriberList = [];
+        $countGroupMale = [];
 
         $subscriberPredictCount = $this->manager->getSubscriberPredictCount();
 
         foreach ($this->manager->getSubscriberPhotoList() as $subscriberId => $subscriberPhotos) {
-            $photoIdList = explode(',', $subscriberPhotos['photo_ids']);
-            $extensionList = explode(',', $subscriberPhotos['extensions']);
+            $groupIdList = explode(',', $subscriberPhotos['group_ids']);
+            $photoNameList = explode(',', $subscriberPhotos['photo_names']);
 
-            $subscriberPhotoPredictList = $this->getPhotoMale($photoIdList, $extensionList);
-            $subscriberPredictList[$subscriberId] = $this->getSubscriberMale($subscriberPhotoPredictList);
+            $peoplePredictSubscriberList[$subscriberId] = $this->getSubscriberMale($photoNameList);
+            $predict = $peoplePredictSubscriberList[$subscriberId];
 
-            $predictCompleteCount = count($subscriberPredictList);
+            foreach ($groupIdList as $groupId) {
+                if (!isset($countGroupMale[$groupId][$predict])) {
+                    $countGroupMale[$groupId][$predict] = 1;
+                }
 
-            $this->logger->debug("Predict male complete for $predictCompleteCount/$subscriberPredictCount");
+                $countGroupMale[$groupId][$predict]++;
+            }
+
+            $peoplePredictSubscriberCount = count($peoplePredictSubscriberList);
+            $this->logger->debug("Predict people complete for $peoplePredictSubscriberCount/$subscriberPredictCount");
         }
 
-        $this->manager->savePredict($subscriberPredictList);
+        $this->manager->saveReportSubscriberPredictMale($countGroupMale);
     }
 
     /**
-     * @param array $subscriberPhotoPredictList
+     * @param array $photoNameList
      *
      * @return string
+     *
+     * @throws ExceptionInterface
+     * @throws TensorflowException
      */
-    private function getSubscriberMale(array $subscriberPhotoPredictList): string
+    private function getSubscriberMale(array $photoNameList): string
     {
-        $classificationCountValueList = array_count_values($subscriberPhotoPredictList);
+        $classificationList = [];
+
+        foreach ($photoNameList as $photoName) {
+            $photoName = rtrim($photoName, '.jpeg');
+
+            $path = $this->pathGenerator->generateIntPath($photoName);
+
+            $imagePathname = "$this->photoPublicDir/$path/$photoName";
+
+            $tensorflowPoetsImageDto = new TensorflowPoetsPredictDto([
+                'classificationModel' => ClassificationEnum::MALE,
+                'image' => $imagePathname,
+            ]);
+
+            $classificationList[$photoName] = $this->tensorflowService->predict($tensorflowPoetsImageDto);
+        }
+
+        $classificationCountValueList = array_count_values($classificationList);
 
         $countMan = $classificationCountValueList[MaleClassificationEnum::MAN] ?? 0;
         $countWoman = $classificationCountValueList[MaleClassificationEnum::WOMAN] ?? 0;
@@ -105,35 +133,5 @@ class MaleClassificationHandler
         }
 
         return MaleClassificationEnum::WOMAN;
-    }
-
-    /**
-     * @param array $photoIdList
-     * @param array $extensionList
-     *
-     * @return array
-     *
-     * @throws ExceptionInterface
-     * @throws TensorflowException
-     */
-    private function getPhotoMale(array $photoIdList, array $extensionList): array
-    {
-        $classificationList = [];
-
-        foreach ($photoIdList as $key => $photoId) {
-            $path = $this->pathGenerator->generateIntPath($photoId);
-            $extension = $extensionList[$key];
-
-            $imagePathname = "$this->photoPublicDir/$path/$photoId.$extension";
-
-            $tensorflowPoetsImageDto = new TensorflowPoetsPredictDto([
-                'classificationModel' => ClassificationEnum::MALE,
-                'image' => $imagePathname,
-            ]);
-
-            $classificationList[$photoId] = $this->tensorflowService->predict($tensorflowPoetsImageDto);
-        }
-
-        return $classificationList;
     }
 }

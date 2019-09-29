@@ -7,7 +7,7 @@ services:
             - "80:80"
             - "443:443"
         volumes:
-            - ../:/var/www/
+            - ../:/app
             - ./nginx/hosts:/etc/nginx/conf.d
             - ./logs:/var/log/nginx
         links:
@@ -32,5 +32,15 @@ services:
         privileged: true
         build: ./php
         volumes:
-            - ../:/var/www/
+            - ../:/app
             - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro
+    tarantool:
+        container_name: ${PROJECT_NAME}_tarantool
+        build: ./tarantool
+        user: tarantool
+        volumes:
+            - ./tarantool/data:/var/lib/tarantool
+        environment:
+            TARANTOOL_PORT: ${TARANTOOL_PORT}
+            TARANTOOL_USER_NAME: ${TARANTOOL_USER_NAME}
+            TARANTOOL_USER_PASSWORD: ${TARANTOOL_USER_PASSWORD}

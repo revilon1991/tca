@@ -64,60 +64,65 @@ class FetchGroupHandler
     }
 
     /**
-     * @param string $externalGroupId
+     * @param string[]|null $groupUsernameList
      *
-     * @throws ExceptionInterface
      * @throws DBALException
+     * @throws ExceptionInterface
      */
-    public function handle(string $externalGroupId): void
+    public function handle(?array $groupUsernameList = null): void
     {
-        $channelInfo = $this->telegramProvider->getChannelInfo($externalGroupId);
-
-        $channelId = $this->manager->generateUniqueId();
-
-        $params = [
-            'id' => $channelId,
-            'external_id' => $channelInfo->getExternalId(),
-            'external_hash' => $channelInfo->getExternalHash(),
-            'type' => $channelInfo->getType(),
-            'title' => $channelInfo->getTitle(),
-            'username' => $channelInfo->getUsername(),
-            'about' => $channelInfo->getAbout(),
-            'subscriber_count' => $channelInfo->getSubscriberCount(),
-            'last_update' => $channelInfo->getLastUpdate()->format('Y-m-d H:i:s'),
-        ];
-
-        $this->manager->saveChannel($params);
-
-        $photoId = $this->manager->getChannelPhoto(
-            $channelInfo->getPhotoExternalId(),
-            $channelInfo->getPhotoExternalHash()
-        );
-
-        if ($photoId) {
-            return;
+        if (!$groupUsernameList) {
+            $groupUsernameList = $this->manager->getGroupUsernameList();
         }
 
-        $photoId = $this->manager->generateUniqueId();
+        foreach ($groupUsernameList as $groupUsername) {
+            $channelInfo = $this->telegramProvider->getChannelInfo($groupUsername);
 
-        $path = sprintf('%s/%s', $this->photoPublicDir, $this->pathGenerator->generateIntPath($photoId));
+            $channelId = $this->manager->generateUniqueId();
 
-        !file_exists($path) ? mkdir($path, 0777, true) : null;
+            $params = [
+                'id' => $channelId,
+                'external_id' => $channelInfo->getExternalId(),
+                'external_hash' => $channelInfo->getExternalHash(),
+                'type' => $channelInfo->getType(),
+                'title' => $channelInfo->getTitle(),
+                'username' => $channelInfo->getUsername(),
+                'about' => $channelInfo->getAbout(),
+            ];
 
-        $pathname = "$path/$photoId";
-        $this->telegramProvider->savePhoto($channelInfo->getPhotoMeta(), $pathname);
+            $this->manager->saveGroup($params);
+            $this->manager->saveReportSubscriberCount($channelId, $channelInfo->getSubscriberCount());
 
-        $extensions = $this->mimeTypes->getExtensions(mime_content_type($pathname));
-        rename($pathname, "$pathname.$extensions[0]");
+            $photoId = $this->manager->getChannelPhoto(
+                $channelInfo->getPhotoExternalId(),
+                $channelInfo->getPhotoExternalHash()
+            );
 
-        $params = [
-            'id' => $photoId,
-            'group_id' => $channelId,
-            'external_id' => $channelInfo->getPhotoExternalId(),
-            'external_hash' => $channelInfo->getPhotoExternalHash(),
-            'extension' => $extensions[0],
-        ];
+            if ($photoId) {
+                continue;
+            }
 
-        $this->manager->addPhoto($params);
+            $photoId = $this->manager->generateUniqueId();
+
+            $path = sprintf('%s/%s', $this->photoPublicDir, $this->pathGenerator->generateIntPath($photoId));
+
+            !file_exists($path) ? mkdir($path, 0777, true) : null;
+
+            $pathname = "$path/$photoId";
+            $this->telegramProvider->savePhoto($channelInfo->getPhotoMeta(), $pathname);
+
+            $extensions = $this->mimeTypes->getExtensions(mime_content_type($pathname));
+            rename($pathname, "$pathname.$extensions[0]");
+
+            $params = [
+                'id' => $photoId,
+                'group_id' => $channelId,
+                'external_id' => $channelInfo->getPhotoExternalId(),
+                'external_hash' => $channelInfo->getPhotoExternalHash(),
+                'extension' => $extensions[0],
+            ];
+
+            $this->manager->addPhoto($params);
+        }
     }
 }

@@ -219,6 +219,9 @@
     "psr/log": {
         "version": "1.1.0"
     },
+    "rybakit/msgpack": {
+        "version": "v0.5.4"
+    },
     "sensio/framework-extra-bundle": {
         "version": "5.2",
         "recipe": {
@@ -537,6 +540,12 @@
     },
     "symfony/yaml": {
         "version": "v4.3.2"
+    },
+    "tarantool/client": {
+        "version": "v0.5.2"
+    },
+    "tarantool/queue": {
+        "version": "v0.8.0"
     },
     "twig/extensions": {
         "version": "1.0",

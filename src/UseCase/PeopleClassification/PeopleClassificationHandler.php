@@ -69,49 +69,51 @@ class PeopleClassificationHandler
      */
     public function handle(): void
     {
-        $peoplePredictPhotoList = [];
         $peoplePredictSubscriberList = [];
+        $countGroupPeople = [];
 
         $subscriberPredictCount = $this->manager->getSubscriberPredictCount();
 
         foreach ($this->manager->getSubscriberPhotoList() as $subscriberId => $subscriberPhotos) {
-            $photoIdList = explode(',', $subscriberPhotos['photo_ids']);
-            $extensionList = explode(',', $subscriberPhotos['extensions']);
+            $groupIdList = explode(',', $subscriberPhotos['group_ids']);
+            $photoNameList = explode(',', $subscriberPhotos['photo_names']);
 
-            $peoplePredictSubscriberPhotoList = $this->getPeoplePredictPhotoList($photoIdList, $extensionList);
+            $peoplePredictSubscriberList[$subscriberId] = $this->isSubscriberPeople($photoNameList);
 
-            $peoplePredictPhotoList[] = $peoplePredictSubscriberPhotoList;
-            $peoplePredictSubscriberList[$subscriberId] = $this->isSubscriberPeople($peoplePredictSubscriberPhotoList);
+            if (!$peoplePredictSubscriberList[$subscriberId]) {
+                foreach ($groupIdList as $groupId) {
+                    isset($countGroupPeople[$groupId])
+                        ? $countGroupPeople[$groupId]++
+                        : $countGroupPeople[$groupId] = 1
+                    ;
+                }
+            }
 
             $peoplePredictSubscriberCount = count($peoplePredictSubscriberList);
-
             $this->logger->debug("Predict people complete for $peoplePredictSubscriberCount/$subscriberPredictCount");
         }
 
-        $peoplePredictPhotoList = array_replace(...$peoplePredictPhotoList);
-
-        $this->manager->saveSubscriberPredict($peoplePredictSubscriberList);
-        $this->manager->savePhotoPredict($peoplePredictPhotoList);
+        $this->manager->saveReportSubscriberPredictPeople($countGroupPeople);
     }
 
     /**
-     * @param array $subscriberPhotoIdList
-     * @param array $extensionList
+     * @param array $photoNameList
      *
-     * @return bool[]
+     * @return bool
      *
      * @throws ExceptionInterface
      * @throws TensorflowException
      */
-    private function getPeoplePredictPhotoList(array $subscriberPhotoIdList, array $extensionList): array
+    private function isSubscriberPeople(array $photoNameList): bool
     {
         $peoplePredictPhotoList = [];
 
-        foreach ($subscriberPhotoIdList as $key => $photoId) {
-            $path = $this->pathGenerator->generateIntPath($photoId);
-            $extension = $extensionList[$key];
+        foreach ($photoNameList as $photoName) {
+            $photoId = rtrim($photoName, '.jpeg');
 
-            $imagePathname = "$this->photoPublicDir/$path/$photoId.$extension";
+            $path = $this->pathGenerator->generateIntPath($photoId);
+
+            $imagePathname = "$this->photoPublicDir/$path/$photoName";
 
             $tensorflowPoetsImageDto = new TensorflowPoetsPredictDto([
                 'classificationModel' => ClassificationEnum::PEOPLE,
@@ -120,19 +122,9 @@ class PeopleClassificationHandler
 
             $predict = $this->tensorflowService->predict($tensorflowPoetsImageDto);
 
-            $peoplePredictPhotoList[$photoId] = $predict === PeopleClassificationEnum::PEOPLE;
+            $peoplePredictPhotoList[] = $predict === PeopleClassificationEnum::PEOPLE;
         }
 
-        return $peoplePredictPhotoList;
-    }
-
-    /**
-     * @param bool[] $peoplePredictPhotoList
-     *
-     * @return bool
-     */
-    private function isSubscriberPeople(array $peoplePredictPhotoList): bool
-    {
         $countPeople = count(array_filter($peoplePredictPhotoList));
         $countUndefined = count($peoplePredictPhotoList) - $countPeople;
 

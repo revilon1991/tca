@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Dto;
 
 use App\Enum\SubscriberTypeEnum;
-use DateTime;
-use DateTimeZone;
 use ReflectionException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -31,11 +29,6 @@ class UserInfoDto implements DtoResolverInterface
      * @var string
      */
     private $type;
-
-    /**
-     * @var DateTime
-     */
-    private $lastUpdate;
 
     /**
      * @var string|null
@@ -84,14 +77,6 @@ class UserInfoDto implements DtoResolverInterface
     public function getType(): string
     {
         return $this->type;
-    }
-
-    /**
-     * @return DateTime
-     */
-    public function getLastUpdate(): DateTime
-    {
-        return $this->lastUpdate;
     }
 
     /**
@@ -145,7 +130,6 @@ class UserInfoDto implements DtoResolverInterface
             'externalId',
             'accessHash',
             'type',
-            'lastUpdate',
         ]);
 
         $resolver->setDefined([
@@ -155,12 +139,6 @@ class UserInfoDto implements DtoResolverInterface
             'about',
             'phone',
         ]);
-
-        $resolver->setNormalizer('lastUpdate', static function (Options $options, $value) {
-            $dateTimeZone = new DateTimeZone(date_default_timezone_get());
-
-            return (new DateTime())->setTimezone($dateTimeZone)->setTimestamp($value);
-        });
 
         $resolver->setNormalizer('externalId', function (Options $options, $value) {
             return (string)$value;

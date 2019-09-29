@@ -48,11 +48,6 @@ class ChannelInfoDto implements DtoResolverInterface
     private $subscriberCount;
 
     /**
-     * @var DateTime
-     */
-    private $lastUpdate;
-
-    /**
      * @var string
      */
     private $type;
@@ -121,14 +116,6 @@ class ChannelInfoDto implements DtoResolverInterface
     }
 
     /**
-     * @return DateTime
-     */
-    public function getLastUpdate(): DateTime
-    {
-        return $this->lastUpdate;
-    }
-
-    /**
      * @return string
      */
     public function getType(): string
@@ -174,7 +161,6 @@ class ChannelInfoDto implements DtoResolverInterface
             'username',
             'about',
             'subscriberCount',
-            'lastUpdate',
             'type',
             'photoMeta',
             'photoId',
@@ -195,12 +181,6 @@ class ChannelInfoDto implements DtoResolverInterface
 
         $resolver->setNormalizer('about', function (Options $options, $value) {
             return empty($value) ? null : (string)$value;
-        });
-
-        $resolver->setNormalizer('lastUpdate', static function (Options $options, $value) {
-            $dateTimeZone = new DateTimeZone(date_default_timezone_get());
-
-            return (new DateTime())->setTimezone($dateTimeZone)->setTimestamp($value);
         });
 
         $resolver->setNormalizer('photoId', function (Options $options, $value) {

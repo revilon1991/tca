@@ -1,3 +1,4 @@
 ---
 - import_tasks: '../task/check_crontab_existence.yaml'
 - import_tasks: '../task/cron_export.yaml'
+- import_tasks: '../task/supervisor_reload.yaml'

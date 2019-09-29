@@ -28,13 +28,32 @@ class FetchGroupManager
      *
      * @throws DBALException
      */
-    public function saveChannel(array $params): void
+    public function saveGroup(array $params): void
     {
         $this->manager->upsert('group', $params, [
             'title',
             'about',
-            'subscriber_count',
-            'last_update',
+        ]);
+    }
+
+    /**
+     * @param string $groupId
+     * @param int $countSubscriber
+     *
+     * @throws DBALException
+     */
+    public function saveReportSubscriberCount(string $groupId, int $countSubscriber): void
+    {
+        $now = date('Y-m-d');
+
+        $params = [
+            'group_id' => $groupId,
+            'date' => $now,
+            'count_subscriber' => $countSubscriber,
+        ];
+
+        $this->manager->upsert('report_group', $params, [
+            'count_subscriber',
         ]);
     }
 
@@ -81,5 +100,22 @@ SQL;
     public function generateUniqueId(): string
     {
         return $this->manager->generateUniqueId();
+    }
+
+    /**
+     * @return array
+     *
+     * @throws DBALException
+     */
+    public function getGroupUsernameList(): array
+    {
+        $sql = <<<SQL
+            select
+                username
+            from `group`
+SQL;
+        $stmt = $this->manager->getConnection()->executeQuery($sql);
+
+        return $stmt->fetchAll(FetchMode::COLUMN);
     }
 }

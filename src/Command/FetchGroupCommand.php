@@ -6,12 +6,15 @@ namespace App\Command;
 
 use App\UseCase\FetchGroup\FetchGroupHandler;
 use Doctrine\DBAL\DBALException;
+use MyBuilder\Bundle\CronosBundle\Annotation\Cron;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
+/**
+ * @Cron(minute="0", hour="0", noLogs=true, server="main")
+ */
 class FetchGroupCommand extends Command
 {
     /**
@@ -36,22 +39,12 @@ class FetchGroupCommand extends Command
 
     /**
      * {@inheritdoc}
-     */
-    protected function configure(): void
-    {
-        $this->addArgument('group_username', InputArgument::REQUIRED, 'telegram channel/chat username');
-    }
-
-    /**
-     * {@inheritdoc}
      *
      * @throws DBALException
      * @throws ExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {
-        $externalGroupId = $input->getArgument('group_username');
-
-        $this->handler->handle($externalGroupId);
+        $this->handler->handle();
     }
 }
