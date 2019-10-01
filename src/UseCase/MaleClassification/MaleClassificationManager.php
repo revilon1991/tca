@@ -13,6 +13,7 @@ use Generator;
 class MaleClassificationManager
 {
     private const UPSERT_CHUNK = 100;
+    private const GROUP_CONCAT_MAX_LENGTH_32_BIT = 4294967295;
 
     /**
      * @var RowManager
@@ -37,7 +38,6 @@ class MaleClassificationManager
             select count(distinct s.id)
             from subscriber s
             inner join photo p on s.id = p.subscriber_id
-            where s.people is null
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);
@@ -52,6 +52,11 @@ SQL;
      */
     public function getSubscriberPhotoList(): Generator
     {
+        $this->manager->getConnection()->exec(sprintf(
+            'set session group_concat_max_len=%s',
+            self::GROUP_CONCAT_MAX_LENGTH_32_BIT
+        ));
+
         $sql = <<<SQL
                 select
                     gs.subscriber_id,

@@ -37,6 +37,33 @@ class FetchGroupManager
     }
 
     /**
+     * @param string $externalId
+     * @param string $externalHash
+     *
+     * @return string
+     *
+     * @throws DBALException
+     */
+    public function getGroupId(string $externalId, string $externalHash): string
+    {
+        $sql = <<<SQL
+            select
+                g.id
+            from `group` g
+            where 1
+                and g.external_id = :external_id
+                and g.external_hash = :external_hash
+SQL;
+
+        $stmt = $this->manager->getConnection()->executeQuery($sql, [
+            'external_id' => $externalId,
+            'external_hash' => $externalHash,
+        ]);
+
+        return $stmt->fetch(FetchMode::COLUMN);
+    }
+
+    /**
      * @param string $groupId
      * @param int $countSubscriber
      *

@@ -78,10 +78,7 @@ class FetchGroupHandler
         foreach ($groupUsernameList as $groupUsername) {
             $channelInfo = $this->telegramProvider->getChannelInfo($groupUsername);
 
-            $channelId = $this->manager->generateUniqueId();
-
             $params = [
-                'id' => $channelId,
                 'external_id' => $channelInfo->getExternalId(),
                 'external_hash' => $channelInfo->getExternalHash(),
                 'type' => $channelInfo->getType(),
@@ -91,7 +88,10 @@ class FetchGroupHandler
             ];
 
             $this->manager->saveGroup($params);
-            $this->manager->saveReportSubscriberCount($channelId, $channelInfo->getSubscriberCount());
+
+            $groupId = $this->manager->getGroupId($channelInfo->getExternalId(), $channelInfo->getExternalHash());
+
+            $this->manager->saveReportSubscriberCount($groupId, $channelInfo->getSubscriberCount());
 
             $photoId = $this->manager->getChannelPhoto(
                 $channelInfo->getPhotoExternalId(),
@@ -116,7 +116,7 @@ class FetchGroupHandler
 
             $params = [
                 'id' => $photoId,
-                'group_id' => $channelId,
+                'group_id' => $groupId,
                 'external_id' => $channelInfo->getPhotoExternalId(),
                 'external_hash' => $channelInfo->getPhotoExternalHash(),
                 'extension' => $extensions[0],

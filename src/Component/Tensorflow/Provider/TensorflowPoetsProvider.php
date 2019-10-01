@@ -79,7 +79,7 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
     public function predict(TensorflowPredictInterface $image): ?string
     {
         if (!file_exists($image->getImage())) {
-            throw new TensorflowException("File '$image' do not exist");
+            throw new TensorflowException("File '{$image->getImage()}' do not exist");
         }
 
         [$outputCommand, $returnCode] = $this->doPredict($image->getImage(), $image->getClassificationModel());

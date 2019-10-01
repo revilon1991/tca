@@ -12,6 +12,7 @@ use Generator;
 class FetchSubscriberPhotoManager
 {
     private const INSERT_CHUNK = 100;
+    private const GROUP_CONCAT_MAX_LENGTH_32_BIT = 4294967295;
 
     /**
      * @var RowManager
@@ -33,12 +34,17 @@ class FetchSubscriberPhotoManager
      */
     public function getSubscriberList(): Generator
     {
+        $this->manager->getConnection()->exec(sprintf(
+            'set session group_concat_max_len=%s',
+            self::GROUP_CONCAT_MAX_LENGTH_32_BIT
+        ));
+
         $sql = <<<SQL
             select
                 s.id,
                 s.external_id,
                 s.external_hash,
-                group_concat(concat(p.external_id, p.external_hash)) photo_unique_keys
+                group_concat(distinct concat(p.external_id, p.external_hash)) photo_unique_keys
             from subscriber s
             inner join group_subscriber gs on s.id = gs.subscriber_id
             left join photo p on s.id = p.subscriber_id

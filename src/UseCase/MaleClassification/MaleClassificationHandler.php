@@ -90,7 +90,7 @@ class MaleClassificationHandler
             }
 
             $peoplePredictSubscriberCount = count($peoplePredictSubscriberList);
-            $this->logger->debug("Predict people complete for $peoplePredictSubscriberCount/$subscriberPredictCount");
+            $this->logger->debug("Predict male complete for $peoplePredictSubscriberCount/$subscriberPredictCount");
         }
 
         $this->manager->saveReportSubscriberPredictMale($countGroupMale);
@@ -109,9 +109,9 @@ class MaleClassificationHandler
         $classificationList = [];
 
         foreach ($photoNameList as $photoName) {
-            $photoName = rtrim($photoName, '.jpeg');
+            $photoId = rtrim($photoName, '.jpeg');
 
-            $path = $this->pathGenerator->generateIntPath($photoName);
+            $path = $this->pathGenerator->generateIntPath($photoId);
 
             $imagePathname = "$this->photoPublicDir/$path/$photoName";
 

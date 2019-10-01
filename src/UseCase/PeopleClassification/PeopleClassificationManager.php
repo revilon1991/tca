@@ -12,6 +12,7 @@ use Generator;
 class PeopleClassificationManager
 {
     private const UPSERT_CHUNK = 100;
+    private const GROUP_CONCAT_MAX_LENGTH_32_BIT = 4294967295;
 
     /**
      * @var RowManager
@@ -54,6 +55,11 @@ SQL;
      */
     public function getSubscriberPhotoList(): Generator
     {
+        $this->manager->getConnection()->exec(sprintf(
+            'set session group_concat_max_len=%s',
+            self::GROUP_CONCAT_MAX_LENGTH_32_BIT
+        ));
+
         $sql = <<<SQL
                 select
                     gs.subscriber_id,
