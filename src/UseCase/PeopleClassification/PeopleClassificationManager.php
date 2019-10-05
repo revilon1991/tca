@@ -40,7 +40,6 @@ class PeopleClassificationManager
             select count(distinct s.id)
             from subscriber s
             inner join photo p on s.id = p.subscriber_id
-            where s.people is null
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);
