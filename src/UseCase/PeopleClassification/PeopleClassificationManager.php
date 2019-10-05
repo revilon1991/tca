@@ -107,4 +107,50 @@ SQL;
             ]);
         }
     }
+
+    /**
+     * @param array $peoplePredictPhotoList
+     *
+     * @throws DBALException
+     */
+    public function savePhotoPredictPeople(array $peoplePredictPhotoList): void
+    {
+        foreach (array_chunk($peoplePredictPhotoList, self::UPSERT_CHUNK, true) as $chunkList) {
+            $paramsList = [];
+
+            foreach ($chunkList as $photoId => $predict) {
+                $paramsList[] = [
+                    'id' => $photoId,
+                    'people' => $predict,
+                ];
+            }
+
+            $this->manager->upsertBulk('photo', $paramsList, [
+                'people',
+            ]);
+        }
+    }
+
+    /**
+     * @param array $peoplePredictSubscriberList
+     *
+     * @throws DBALException
+     */
+    public function saveSubscriberPredictPeople(array $peoplePredictSubscriberList): void
+    {
+        foreach (array_chunk($peoplePredictSubscriberList, self::UPSERT_CHUNK, true) as $chunkList) {
+            $paramsList = [];
+
+            foreach ($chunkList as $subscriberId => $predict) {
+                $paramsList[] = [
+                    'id' => $subscriberId,
+                    'people' => $predict,
+                ];
+            }
+
+            $this->manager->upsertBulk('subscriber', $paramsList, [
+                'people',
+            ]);
+        }
+    }
 }

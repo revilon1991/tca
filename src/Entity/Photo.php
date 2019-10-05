@@ -71,6 +71,13 @@ class Photo
     private $extension;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $people;
+
+    /**
      * @return string
      */
     public function getId(): string
@@ -164,5 +171,21 @@ class Photo
     public function setExtension(string $extension): void
     {
         $this->extension = $extension;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPeople(): bool
+    {
+        return $this->people;
+    }
+
+    /**
+     * @param bool $people
+     */
+    public function setPeople(bool $people): void
+    {
+        $this->people = $people;
     }
 }

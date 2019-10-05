@@ -70,6 +70,7 @@ class PeopleClassificationHandler
     public function handle(): void
     {
         $peoplePredictSubscriberList = [];
+        $peoplePredictPhotoList = [];
         $countGroupPeople = [];
 
         $subscriberPredictCount = $this->manager->getSubscriberPredictCount();
@@ -78,7 +79,10 @@ class PeopleClassificationHandler
             $groupIdList = explode(',', $subscriberPhotos['group_ids']);
             $photoNameList = explode(',', $subscriberPhotos['photo_names']);
 
-            $peoplePredictSubscriberList[$subscriberId] = $this->isSubscriberPeople($photoNameList);
+            $peoplePredictSubscriberList[$subscriberId] = $this->isSubscriberPeople(
+                $photoNameList,
+                $peoplePredictPhotoList
+            );
 
             if (!$peoplePredictSubscriberList[$subscriberId]) {
                 foreach ($groupIdList as $groupId) {
@@ -93,18 +97,21 @@ class PeopleClassificationHandler
             $this->logger->debug("Predict people complete for $peoplePredictSubscriberCount/$subscriberPredictCount");
         }
 
+        $this->manager->savePhotoPredictPeople($peoplePredictPhotoList);
+        $this->manager->saveSubscriberPredictPeople($peoplePredictSubscriberList);
         $this->manager->saveReportSubscriberPredictPeople($countGroupPeople);
     }
 
     /**
      * @param array $photoNameList
+     * @param array $photoList
      *
      * @return bool
      *
      * @throws ExceptionInterface
      * @throws TensorflowException
      */
-    private function isSubscriberPeople(array $photoNameList): bool
+    private function isSubscriberPeople(array $photoNameList, array &$photoList): bool
     {
         $peoplePredictPhotoList = [];
 
@@ -122,6 +129,7 @@ class PeopleClassificationHandler
 
             $predict = $this->tensorflowService->predict($tensorflowPoetsImageDto);
 
+            $photoList[$photoId] = $predict === PeopleClassificationEnum::PEOPLE;
             $peoplePredictPhotoList[] = $predict === PeopleClassificationEnum::PEOPLE;
         }
 

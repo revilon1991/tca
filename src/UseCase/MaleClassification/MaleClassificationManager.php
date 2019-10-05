@@ -38,9 +38,12 @@ class MaleClassificationManager
             select count(distinct s.id)
             from subscriber s
             inner join photo p on s.id = p.subscriber_id
+            where s.people = :subscriber_is_people
 SQL;
 
-        $stmt = $this->manager->getConnection()->executeQuery($sql);
+        $stmt = $this->manager->getConnection()->executeQuery($sql, [
+            'subscriber_is_people' => 1,
+        ]);
 
         return (int)$stmt->fetch(FetchMode::COLUMN) ?: 0;
     }
@@ -65,10 +68,16 @@ SQL;
                 from subscriber s
                     inner join photo p on s.id = p.subscriber_id
                     inner join group_subscriber gs on s.id = gs.subscriber_id
+                where 1
+                    and s.people = :subscriber_is_people
+                    and p.people = :photo_is_people
                 group by gs.subscriber_id
 SQL;
 
-        $stmt = $this->manager->getConnection()->executeQuery($sql);
+        $stmt = $this->manager->getConnection()->executeQuery($sql, [
+            'subscriber_is_people' => 1,
+            'photo_is_people' => 1,
+        ]);
 
         while ($result = $stmt->fetch()) {
             yield $result['subscriber_id'] => [
