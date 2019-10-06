@@ -54,16 +54,12 @@ class PredictTensorflowCommand extends Command
         $classificationModel = $input->getArgument('classification_model');
         $imagePathnameList = $input->getArgument('pathname_image_entry');
 
-        $tensorflowPoetsImageDtoList = [];
+        $tensorflowPoetsImageDto = new TensorflowPoetsPredictDto([
+            'classificationModel' => $classificationModel,
+            'image' => $imagePathnameList,
+        ]);
 
-        foreach ($imagePathnameList as $imagePathname) {
-            $tensorflowPoetsImageDtoList[$imagePathname] = new TensorflowPoetsPredictDto([
-                'classificationModel' => $classificationModel,
-                'image' => $imagePathname,
-            ]);
-        }
-
-        $labelList = $this->tensorflowService->predictList($tensorflowPoetsImageDtoList);
+        $labelList = $this->tensorflowService->predict($tensorflowPoetsImageDto);
 
         $output->writeln($labelList);
     }

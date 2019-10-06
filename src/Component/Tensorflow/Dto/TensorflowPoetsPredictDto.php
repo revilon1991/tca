@@ -15,9 +15,9 @@ class TensorflowPoetsPredictDto implements DtoResolverInterface, TensorflowPredi
     use DtoResolverTrait;
 
     /**
-     * @var string
+     * @var array
      */
-    private $image;
+    private $imageList;
 
     /**
      * @var string
@@ -25,11 +25,11 @@ class TensorflowPoetsPredictDto implements DtoResolverInterface, TensorflowPredi
     private $classificationModel;
 
     /**
-     * @return string
+     * @return array
      */
-    public function getImage(): string
+    public function getImageList(): array
     {
-        return $this->image;
+        return $this->imageList;
     }
 
     /**
@@ -48,11 +48,11 @@ class TensorflowPoetsPredictDto implements DtoResolverInterface, TensorflowPredi
     protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired([
-            'image',
+            'imageList',
             'classificationModel',
         ]);
 
-        $resolver->setAllowedTypes('image', 'string');
+        $resolver->setAllowedTypes('imageList', 'array');
 
         $resolver->addAllowedValues('classificationModel', ClassificationEnum::getEnumList());
     }

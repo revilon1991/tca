@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Component\Tensorflow\Exception\TensorflowException;
 use App\UseCase\PeopleClassification\PeopleClassificationHandler;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\ConnectionException;
 use MyBuilder\Bundle\CronosBundle\Annotation\Cron;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,9 +41,8 @@ class PeopleClassificationCommand extends Command
     /**
      * {@inheritdoc}
      *
-     * @throws DBALException
-     * @throws TensorflowException
      * @throws ExceptionInterface
+     * @throws ConnectionException
      */
     protected function execute(InputInterface $input, OutputInterface $output): void
     {

@@ -8,11 +8,11 @@ use App\Component\Tensorflow\Dto\TensorflowPoetsPredictDto;
 use App\Component\Tensorflow\Dto\TensorflowPredictInterface;
 use App\Component\Tensorflow\Enum\ClassificationEnum;
 use App\Component\Tensorflow\Exception\TensorflowException;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use function exec;
 use function file_exists;
 use function implode;
-use function preg_match_all;
 use function sprintf;
 
 class TensorflowPoetsProvider implements TensorflowProviderInterface
@@ -24,7 +24,8 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
     private const TRAINING_SUMMARIES_DIRECTORY_NAME = 'training_summaries';
     private const TENSORFLOW_MOBILENET_ARCHITECTURE = 'mobilenet_0.50_224';
     private const RETRAINED_IMAGE_DIRECTORY_NAME = 'retrained_image';
-    private const PROBABILITY_COEFFICIENT = 0.5;
+    private const IMAGE_PREDICT_CHUNK = 100;
+
     /**
      * @var string
      */
@@ -36,17 +37,25 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
     private $projectDir;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @required
      *
      * @param string $tensorflowForPoetsRepositoryPath
      * @param string $projectDir
+     * @param LoggerInterface $logger
      */
     public function dependencyInjection(
         string $tensorflowForPoetsRepositoryPath,
-        string $projectDir
+        string $projectDir,
+        LoggerInterface $logger
     ): void {
         $this->tensorflowForPoetsRepositoryPath = $tensorflowForPoetsRepositoryPath;
         $this->projectDir = $projectDir;
+        $this->logger = $logger;
     }
 
     /**
@@ -76,35 +85,50 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
      * @throws ReflectionException
      * @throws TensorflowException
      */
-    public function predict(TensorflowPredictInterface $image): ?string
+    public function predict(TensorflowPredictInterface $imageDto): array
     {
-        if (!file_exists($image->getImage())) {
-            throw new TensorflowException("File '{$image->getImage()}' do not exist");
+        foreach ($imageDto->getImageList() as $image) {
+            if (!file_exists($image)) {
+                throw new TensorflowException("File '$image' do not exist");
+            }
         }
 
-        [$outputCommand, $returnCode] = $this->doPredict($image->getImage(), $image->getClassificationModel());
+        $predictList = [];
+        $predictListChunk = [];
 
-        if ($returnCode !== 0) {
-            $providerClassName = self::class;
+        $countImages = count($imageDto->getImageList());
+        $this->logger->info("Predict start for $countImages images");
 
-            throw new TensorflowException("Provider '$providerClassName' exit with non zero code ($returnCode)");
+        foreach (array_chunk($imageDto->getImageList(), self::IMAGE_PREDICT_CHUNK) as $imageList) {
+            [$outputCommand, $returnCode] = $this->doPredict(
+                $imageList,
+                $imageDto->getClassificationModel()
+            );
+
+            if ($returnCode !== 0) {
+                $providerClassName = self::class;
+                $message = implode(PHP_EOL, $outputCommand);
+
+                throw new TensorflowException(
+                    "Provider '$providerClassName' exit with non zero code ($returnCode): $message"
+                );
+            }
+
+            $jsonString = implode(PHP_EOL, $outputCommand);
+            $predictListChunk[] = json_decode($jsonString, true);
+
+            if ($predictList === false) {
+                throw new TensorflowException("Predict can\'t parse. See output: $outputCommand");
+            }
+
+            $imagePredictChunk = array_map('count', $predictListChunk);
+            $imagePredictChunk = array_sum($imagePredictChunk);
+            $this->logger->info("Predict complete for $imagePredictChunk image");
         }
 
-        $outputCommand = implode(PHP_EOL, $outputCommand);
+        $predictList = array_merge(...$predictListChunk);
 
-        preg_match_all('#(\w+)\s\(score=(\d\.\d+)\)#', $outputCommand, $matches);
-
-        if (empty($matches[2])) {
-            throw new TensorflowException("Predict can\'t parse. See output: $outputCommand");
-        }
-
-        $coefficientPredict = (float)$matches[2][0];
-
-        if ($coefficientPredict < self::PROBABILITY_COEFFICIENT) {
-            return null;
-        }
-
-        return $matches[1][0];
+        return $predictList;
     }
 
     /**
@@ -175,7 +199,7 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
     }
 
     /**
-     * @param string $image
+     * @param array $imageList
      * @param string $classificationModel
      *
      * @return array
@@ -183,19 +207,19 @@ class TensorflowPoetsProvider implements TensorflowProviderInterface
      * @throws ReflectionException
      * @throws TensorflowException
      */
-    private function doPredict(string $image, string $classificationModel): array
+    private function doPredict(array $imageList, string $classificationModel): array
     {
         $dataPath = $this->getModelPath($classificationModel);
 
-        $command = "cd $this->tensorflowForPoetsRepositoryPath && python3 -m scripts.label_image ";
+        $labelImageBulkScriptPath = __DIR__ . '/../scripts';
+        $command = "cd $labelImageBulkScriptPath && python3 label_image_bulk.py ";
 
         $retrainedGraphFilename = self::RETRAINED_GRAPH_FILENAME;
         $retrainedLabelsFilename = self::RETRAINED_LABELS_FILENAME;
 
-        $options = "--graph=$dataPath/$retrainedGraphFilename ";
-        $options .= "--image=$image ";
-        $options .= "--labels=$dataPath/$retrainedLabelsFilename ";
-        $options .= '2>/dev/null';
+        $options = "$dataPath/$retrainedGraphFilename ";
+        $options .= "$dataPath/$retrainedLabelsFilename ";
+        $options .= implode(' ', $imageList);
 
         $command .= $options;
 

@@ -7,11 +7,11 @@ namespace App\Component\Tensorflow\Dto;
 interface TensorflowPredictInterface
 {
     /**
-     * Pathname to image for predict class
+     * Pathname to image list for predict class
      *
-     * @return string
+     * @return array
      */
-    public function getImage(): string;
+    public function getImageList(): array;
 
     /**
      * Choose model for predict class

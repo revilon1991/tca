@@ -22,9 +22,9 @@ interface TensorflowProviderInterface
      *
      * @param TensorflowPredictInterface $image
      *
-     * @return string|null
+     * @return array
      */
-    public function predict(TensorflowPredictInterface $image): ?string;
+    public function predict(TensorflowPredictInterface $image): array;
 
     /**
      * @param TensorflowPredictInterface $image

@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\UseCase\PeopleClassification;
 
 use App\Component\Manager\Executer\RowManager;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\FetchMode;
-use Generator;
 
 class PeopleClassificationManager
 {
     private const UPSERT_CHUNK = 100;
-    private const GROUP_CONCAT_MAX_LENGTH_32_BIT = 4294967295;
 
     /**
      * @var RowManager
@@ -29,59 +27,85 @@ class PeopleClassificationManager
         $this->manager = $manager;
     }
 
-    /**
-     * @return int
-     *
-     * @throws DBALException
-     */
-    public function getSubscriberPredictCount(): int
+    public function beginTransaction(): void
     {
-        $sql = <<<SQL
-            select count(distinct s.id)
-            from subscriber s
-            inner join photo p on s.id = p.subscriber_id
-SQL;
-
-        $stmt = $this->manager->getConnection()->executeQuery($sql);
-
-        return (int)$stmt->fetch(FetchMode::COLUMN) ?: 0;
+        $this->manager->getConnection()->beginTransaction();
     }
 
     /**
-     * @return Generator
+     * @throws ConnectionException
+     */
+    public function commit(): void
+    {
+        $this->manager->getConnection()->commit();
+    }
+
+    /**
+     * @throws ConnectionException
+     */
+    public function rollBack(): void
+    {
+        $this->manager->getConnection()->rollBack();
+    }
+
+    /**
+     * @throws DBALException
+     */
+    public function clearPeopleMark(): void
+    {
+        $sql = <<<SQL
+            update subscriber set people = null;
+            update photo set people = null;
+SQL;
+
+        $this->manager->getConnection()->exec($sql);
+    }
+
+    /**
+     * @return array
      *
      * @throws DBALException
      */
-    public function getSubscriberPhotoList(): Generator
+    public function getPhotoList(): array
     {
-        $this->manager->getConnection()->exec(sprintf(
-            'set session group_concat_max_len=%s',
-            self::GROUP_CONCAT_MAX_LENGTH_32_BIT
-        ));
-
         $sql = <<<SQL
-                select
-                    gs.subscriber_id,
-                    group_concat(distinct gs.group_id) group_ids,
-                    group_concat(distinct concat(p.id, '.', p.extension)) photo_names
-                from subscriber s
-                    inner join photo p on s.id = p.subscriber_id
-                    inner join group_subscriber gs on s.id = gs.subscriber_id
-                group by gs.subscriber_id
+            select
+                p.id,
+                p.extension
+            from photo p
+            inner join group_subscriber gs on gs.subscriber_id = p.subscriber_id
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);
 
-        while ($result = $stmt->fetch()) {
-            yield $result['subscriber_id'] => [
-                'group_ids' => $result['group_ids'],
-                'photo_names' => $result['photo_names'],
-            ];
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * @return array
+     *
+     * @throws DBALException
+     */
+    public function getSubscriberPhotoList(): array
+    {
+        $resultList = [];
+        
+        $sql = <<<SQL
+            select
+                gs.subscriber_id,
+                p.id photo_id
+            from photo p
+            inner join group_subscriber gs on gs.subscriber_id = p.subscriber_id
+SQL;
+        $stmt = $this->manager->getConnection()->executeQuery($sql);
+
+        foreach ($stmt->fetchAll() as $row) {
+            $resultList[$row['subscriber_id']][$row['photo_id']] = $row['photo_id'];
         }
-
-        $stmt->closeCursor();
+        
+        return $resultList;
     }
-
+    
     /**
      * @param array $countGroupPeople
      *
@@ -121,13 +145,11 @@ SQL;
             foreach ($chunkList as $photoId => $predict) {
                 $paramsList[] = [
                     'id' => $photoId,
-                    'people' => $predict,
+                    'people' => (int)$predict,
                 ];
             }
 
-            $this->manager->upsertBulk('photo', $paramsList, [
-                'people',
-            ]);
+            $this->manager->updateBulk('photo', $paramsList);
         }
     }
 
@@ -144,13 +166,41 @@ SQL;
             foreach ($chunkList as $subscriberId => $predict) {
                 $paramsList[] = [
                     'id' => $subscriberId,
-                    'people' => $predict,
+                    'people' => (int)$predict,
                 ];
             }
 
-            $this->manager->upsertBulk('subscriber', $paramsList, [
-                'people',
-            ]);
+            $this->manager->updateBulk('subscriber', $paramsList);
         }
+    }
+
+    /**
+     * @return array
+     *
+     * @throws DBALException
+     */
+    public function getPeopleSubscriberGroupCount(): array
+    {
+        $resultList = [];
+
+        $sql = <<<SQL
+            select
+                gs.group_id,
+                count(gs.subscriber_id) cnt
+            from subscriber s
+            inner join group_subscriber gs on s.id = gs.subscriber_id
+            where s.people = :is_people
+            group by gs.group_id
+SQL;
+
+        $stmt = $this->manager->getConnection()->executeQuery($sql, [
+            'is_people' => 1,
+        ]);
+
+        foreach ($stmt->fetchAll() as $row) {
+            $resultList[$row['group_id']] = $row['cnt'];
+        }
+
+        return $resultList;
     }
 }

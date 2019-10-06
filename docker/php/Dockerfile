@@ -54,6 +54,7 @@ RUN echo "extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/tara
 RUN pip3 install --upgrade pip
 RUN pip3 install tensorflow
 RUN pip3 install 'setuptools>=41.0.0'
+RUN pip3 install 'numpy==1.16.4'
 ###< tensorflow ###
 
 RUN docker-php-ext-install pcntl

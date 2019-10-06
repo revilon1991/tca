@@ -27,11 +27,11 @@ class TensorflowService
     /**
      * @param TensorflowPredictInterface $tensorflowImage
      *
-     * @return string|null
+     * @return array
      *
      * @throws TensorflowException
      */
-    public function predict(TensorflowPredictInterface $tensorflowImage): ?string
+    public function predict(TensorflowPredictInterface $tensorflowImage): array
     {
         foreach ($this->providerList as $tensorflowProvider) {
             if ($tensorflowProvider->supports($tensorflowImage)) {
@@ -42,23 +42,5 @@ class TensorflowService
         $tensorflowImageClassName = get_class($tensorflowImage);
 
         throw new TensorflowException("Not find provider supported '$tensorflowImageClassName'");
-    }
-
-    /**
-     * @param TensorflowPredictInterface[] $tensorflowImageList
-     *
-     * @return array
-     *
-     * @throws TensorflowException
-     */
-    public function predictList(array $tensorflowImageList): array
-    {
-        $labelList = [];
-
-        foreach ($tensorflowImageList as $key => $tensorflowImage) {
-            $labelList[$key] = $this->predict($tensorflowImage);
-        }
-
-        return $labelList;
     }
 }
