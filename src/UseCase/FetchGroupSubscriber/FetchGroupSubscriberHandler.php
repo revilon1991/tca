@@ -46,6 +46,7 @@ class FetchGroupSubscriberHandler
             $subscriberIdList = $this->manager->getSubscriberIdList($externalIdList, $externalHashList);
 
             $this->manager->addGroupSubscriptionList($subscriberIdList, $group['id']);
+            $this->manager->saveCountRealSubscriber($group['id'], count($subscriberIdList));
         }
     }
 }

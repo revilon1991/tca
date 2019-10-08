@@ -113,6 +113,29 @@ SQL;
     }
 
     /**
+     * @param string $groupId
+     * @param int $countRealSubscriber
+     *
+     * @throws DBALException
+     */
+    public function saveCountRealSubscriber(string $groupId, int $countRealSubscriber): void
+    {
+        $now = date('Y-m-d');
+
+        $this->manager->upsert(
+            'report_group',
+            [
+                'date' => $now,
+                'group_id' => $groupId,
+                'count_real_subscriber' => $countRealSubscriber,
+            ],
+            [
+                'count_real_subscriber',
+            ]
+        );
+    }
+
+    /**
      * @param array $externalIdList
      * @param array $externalHashList
      *

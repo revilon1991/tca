@@ -11,7 +11,6 @@ use App\Component\Tensorflow\Exception\TensorflowException;
 use App\Component\Tensorflow\Service\TensorflowService;
 use App\Enum\MaleClassificationEnum;
 use Doctrine\DBAL\DBALException;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 
 class MaleClassificationHandler
@@ -20,11 +19,6 @@ class MaleClassificationHandler
      * @var MaleClassificationManager
      */
     private $manager;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var PathGenerator
@@ -43,20 +37,17 @@ class MaleClassificationHandler
 
     /**
      * @param MaleClassificationManager $manager
-     * @param LoggerInterface $logger
      * @param PathGenerator $pathGenerator
      * @param string $photoPublicDir
      * @param TensorflowService $tensorflowService
      */
     public function __construct(
         MaleClassificationManager $manager,
-        LoggerInterface $logger,
         PathGenerator $pathGenerator,
         string $photoPublicDir,
         TensorflowService $tensorflowService
     ) {
         $this->manager = $manager;
-        $this->logger = $logger;
         $this->pathGenerator = $pathGenerator;
         $this->photoPublicDir = $photoPublicDir;
         $this->tensorflowService = $tensorflowService;
@@ -69,69 +60,48 @@ class MaleClassificationHandler
      */
     public function handle(): void
     {
-        $peoplePredictSubscriberList = [];
-        $countGroupMale = [];
+        $manEnum = MaleClassificationEnum::MAN;
+        $womanEnum = MaleClassificationEnum::WOMAN;
 
-        $subscriberPredictCount = $this->manager->getSubscriberPredictCount();
+        $countMaleList = [];
+        $imagePathnameMap = [];
 
-        foreach ($this->manager->getSubscriberPhotoList() as $subscriberId => $subscriberPhotos) {
-            $groupIdList = explode(',', $subscriberPhotos['group_ids']);
-            $photoNameList = explode(',', $subscriberPhotos['photo_names']);
+        foreach ($this->manager->getPhotoList() as $photo) {
+            $path = $this->pathGenerator->generateIntPath($photo['id']);
+            $imagePathnameMap[$photo['id']] = "$this->photoPublicDir/$path/$photo[id].$photo[extension]";
+        }
 
-            $peoplePredictSubscriberList[$subscriberId] = $this->getSubscriberMale($photoNameList);
-            $predict = $peoplePredictSubscriberList[$subscriberId];
+        $predictList = $this->tensorflowService->predict(new TensorflowPoetsPredictDto([
+            'classificationModel' => ClassificationEnum::MALE,
+            'imageList' => $imagePathnameMap,
+        ]));
 
-            foreach ($groupIdList as $groupId) {
-                if (!isset($countGroupMale[$groupId][$predict])) {
-                    $countGroupMale[$groupId][$predict] = 1;
+        foreach ($this->manager->getSubscriberPhotoList() as $groupId => $subscriberList) {
+            $countMaleList[$groupId][$manEnum] = $countMaleList[$groupId][$manEnum] ?? 0;
+            $countMaleList[$groupId][$womanEnum] = $countMaleList[$groupId][$womanEnum] ?? 0;
+
+            foreach ($subscriberList as $photoList) {
+                $subscriberPredictList = [];
+
+                foreach ($photoList as $photoId) {
+                    $predictKey = $imagePathnameMap[$photoId];
+
+                    $subscriberPredictList[] = $predictList[$predictKey]['label'];
                 }
 
-                $countGroupMale[$groupId][$predict]++;
+                $predictCount = array_count_values($subscriberPredictList);
+
+                $predictCount[$manEnum] = $predictCount[$manEnum] ?? 0;
+                $predictCount[$womanEnum] = $predictCount[$womanEnum] ?? 0;
+
+                if ($predictCount[$manEnum] > $predictCount[$womanEnum]) {
+                    $countMaleList[$groupId][$manEnum]++;
+                } else {
+                    $countMaleList[$groupId][$womanEnum]++;
+                }
             }
-
-            $peoplePredictSubscriberCount = count($peoplePredictSubscriberList);
-            $this->logger->debug("Predict male complete for $peoplePredictSubscriberCount/$subscriberPredictCount");
         }
 
-        $this->manager->saveReportSubscriberPredictMale($countGroupMale);
-    }
-
-    /**
-     * @param array $photoNameList
-     *
-     * @return string
-     *
-     * @throws ExceptionInterface
-     * @throws TensorflowException
-     */
-    private function getSubscriberMale(array $photoNameList): string
-    {
-        $classificationList = [];
-
-        foreach ($photoNameList as $photoName) {
-            $photoId = rtrim($photoName, '.jpeg');
-
-            $path = $this->pathGenerator->generateIntPath($photoId);
-
-            $imagePathname = "$this->photoPublicDir/$path/$photoName";
-
-            $tensorflowPoetsImageDto = new TensorflowPoetsPredictDto([
-                'classificationModel' => ClassificationEnum::MALE,
-                'image' => $imagePathname,
-            ]);
-
-            $classificationList[$photoName] = $this->tensorflowService->predict($tensorflowPoetsImageDto);
-        }
-
-        $classificationCountValueList = array_count_values($classificationList);
-
-        $countMan = $classificationCountValueList[MaleClassificationEnum::MAN] ?? 0;
-        $countWoman = $classificationCountValueList[MaleClassificationEnum::WOMAN] ?? 0;
-
-        if ($countMan >= $countWoman) {
-            return MaleClassificationEnum::MAN;
-        }
-
-        return MaleClassificationEnum::WOMAN;
+        $this->manager->saveReportSubscriberPredictMale($countMaleList);
     }
 }

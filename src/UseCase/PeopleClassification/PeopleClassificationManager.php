@@ -27,27 +27,6 @@ class PeopleClassificationManager
         $this->manager = $manager;
     }
 
-    public function beginTransaction(): void
-    {
-        $this->manager->getConnection()->beginTransaction();
-    }
-
-    /**
-     * @throws ConnectionException
-     */
-    public function commit(): void
-    {
-        $this->manager->getConnection()->commit();
-    }
-
-    /**
-     * @throws ConnectionException
-     */
-    public function rollBack(): void
-    {
-        $this->manager->getConnection()->rollBack();
-    }
-
     /**
      * @throws DBALException
      */
@@ -107,15 +86,15 @@ SQL;
     }
     
     /**
-     * @param array $countGroupPeople
+     * @param array $countGroupPeopleList
      *
      * @throws DBALException
      */
-    public function saveReportSubscriberPredictPeople(array $countGroupPeople): void
+    public function saveReportSubscriberPredictPeople(array $countGroupPeopleList): void
     {
         $now = date('Y-m-d');
 
-        foreach (array_chunk($countGroupPeople, self::UPSERT_CHUNK, true) as $chunkList) {
+        foreach (array_chunk($countGroupPeopleList, self::UPSERT_CHUNK, true) as $chunkList) {
             $paramsList = [];
 
             foreach ($chunkList as $groupId => $countPeople) {
