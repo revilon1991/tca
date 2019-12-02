@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "39565c489959d8ca9bd9e665e267a404",
+    "content-hash": "09f28d327bea3b2a01603604bb36339e",
     "packages": [
         {
             "name": "amphp/amp",
@@ -89,12 +89,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/artax.git",
-                "reference": "fb8c11fe7530be274483adf63346cc1b0fa1714a"
+                "reference": "9bc1ceba3d03622730f40a53ca30f8454f5bec6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/artax/zipball/fb8c11fe7530be274483adf63346cc1b0fa1714a",
-                "reference": "fb8c11fe7530be274483adf63346cc1b0fa1714a",
+                "url": "https://api.github.com/repos/amphp/artax/zipball/9bc1ceba3d03622730f40a53ca30f8454f5bec6c",
+                "reference": "9bc1ceba3d03622730f40a53ca30f8454f5bec6c",
                 "shasum": ""
             },
             "require": {
@@ -124,12 +124,12 @@
             ],
             "authors": [
                 {
-                    "name": "Niklas Keller",
-                    "email": "me@kelunik.com"
-                },
-                {
                     "name": "Daniel Lowrey",
                     "email": "rdlowrey@gmail.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
                 }
             ],
             "description": "Asynchronous parallel HTTP/1.1 client built on the Amp concurrency framework",
@@ -142,7 +142,7 @@
                 "parallel",
                 "rest"
             ],
-            "time": "2019-05-29T17:21:51+00:00"
+            "time": "2019-11-04T19:29:21+00:00"
         },
         {
             "name": "amphp/byte-stream",
@@ -294,20 +294,20 @@
             ],
             "authors": [
                 {
-                    "name": "Bob Weinand",
-                    "email": "bobwei9@hotmail.com"
-                },
-                {
-                    "name": "Niklas Keller",
-                    "email": "me@kelunik.com"
+                    "name": "Chris Wright",
+                    "email": "addr@daverandom.com"
                 },
                 {
                     "name": "Daniel Lowrey",
                     "email": "rdlowrey@php.net"
                 },
                 {
-                    "name": "Chris Wright",
-                    "email": "addr@daverandom.com"
+                    "name": "Bob Weinand",
+                    "email": "bobwei9@hotmail.com"
+                },
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
                 },
                 {
                     "name": "Aaron Piotrowski",
@@ -324,7 +324,7 @@
                 "dns",
                 "resolve"
             ],
-            "time": "2019-07-08T20:49:23+00:00"
+            "time": "2019-11-28T20:10:22+00:00"
         },
         {
             "name": "amphp/file",
@@ -1252,10 +1252,10 @@
                 "amphp/byte-stream": "^1.6",
                 "amphp/dns": "dev-master#aa1892bdf13b787d759df6f2523e8027a434d927 as v0.9.x-dev",
                 "amphp/file": "^0.3",
-                "amphp/socket": "^0.10",
+                "amphp/socket": "0.10.12 as 1",
                 "amphp/uri": "^0.1.4",
-                "amphp/websocket": "dev-master as 1",
-                "amphp/websocket-client": "dev-master as 1",
+                "amphp/websocket": "dev-master#db2da8c5b3ed22eae37da5ffa10ab3ea8de19342 as 1",
+                "amphp/websocket-client": "dev-master#aff808025637bd705672338b4904ad03a4dbdc04 as 1",
                 "danog/dns-over-https": "^0.1",
                 "danog/magicalserializer": "^1.0",
                 "danog/primemodule": "^1",
@@ -1272,8 +1272,10 @@
                 "krakjoe/pthreads-polyfill": "*"
             },
             "require-dev": {
+                "amphp/php-cs-fixer-config": "dev-master",
                 "ennexa/amp-update-cache": "dev-master",
-                "phpdocumentor/reflection-docblock": "^3.1",
+                "haydenpierce/class-finder": "^0.4",
+                "phpdocumentor/reflection-docblock": "^4.3",
                 "phpunit/phpunit": "^8"
             },
             "suggest": {
@@ -1281,8 +1283,8 @@
             },
             "type": "project",
             "autoload": {
-                "psr-0": {
-                    "danog\\MadelineProto\\": "src/"
+                "psr-4": {
+                    "danog\\MadelineProto\\": "src/danog/MadelineProto"
                 },
                 "files": [
                     "src/BigIntegor.php",
@@ -1317,7 +1319,7 @@
                 "telegram",
                 "video"
             ],
-            "time": "2019-07-24T18:31:46+00:00"
+            "time": "2019-11-23T15:26:30+00:00"
         },
         {
             "name": "danog/magicalserializer",
@@ -3848,16 +3850,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.1.0",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
+                "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
-                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/446d54b4cb6bf489fc9d75f55843658e6f25d801",
+                "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801",
                 "shasum": ""
             },
             "require": {
@@ -3866,7 +3868,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -3891,7 +3893,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2018-11-20T15:27:04+00:00"
+            "time": "2019-11-01T11:05:21+00:00"
         },
         {
             "name": "rybakit/msgpack",
@@ -4763,16 +4765,16 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v4.3.2",
+            "version": "v4.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache.git",
-                "reference": "4acf343c9e3aea5a00d51926c01125441707635c"
+                "reference": "2a7bcc592adcaab9efc165bbced5a91fe905fad4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache/zipball/4acf343c9e3aea5a00d51926c01125441707635c",
-                "reference": "4acf343c9e3aea5a00d51926c01125441707635c",
+                "url": "https://api.github.com/repos/symfony/cache/zipball/2a7bcc592adcaab9efc165bbced5a91fe905fad4",
+                "reference": "2a7bcc592adcaab9efc165bbced5a91fe905fad4",
                 "shasum": ""
             },
             "require": {
@@ -4837,20 +4839,20 @@
                 "caching",
                 "psr6"
             ],
-            "time": "2019-06-26T07:55:28+00:00"
+            "time": "2019-12-01T10:50:31+00:00"
         },
         {
             "name": "symfony/cache-contracts",
-            "version": "v1.1.5",
+            "version": "v1.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache-contracts.git",
-                "reference": "ec5524b669744b5f1dc9c66d3c2b091eb7e7f0db"
+                "reference": "af50d14ada9e4e82cfabfabdc502d144f89be0a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/ec5524b669744b5f1dc9c66d3c2b091eb7e7f0db",
-                "reference": "ec5524b669744b5f1dc9c66d3c2b091eb7e7f0db",
+                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/af50d14ada9e4e82cfabfabdc502d144f89be0a1",
+                "reference": "af50d14ada9e4e82cfabfabdc502d144f89be0a1",
                 "shasum": ""
             },
             "require": {
@@ -4895,7 +4897,7 @@
                 "interoperability",
                 "standards"
             ],
-            "time": "2019-06-13T11:15:36+00:00"
+            "time": "2019-10-04T21:43:27+00:00"
         },
         {
             "name": "symfony/config",
@@ -7276,16 +7278,16 @@
         },
         {
             "name": "symfony/service-contracts",
-            "version": "v1.1.5",
+            "version": "v1.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/service-contracts.git",
-                "reference": "f391a00de78ec7ec8cf5cdcdae59ec7b883edb8d"
+                "reference": "ffc7f5692092df31515df2a5ecf3b7302b3ddacf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/f391a00de78ec7ec8cf5cdcdae59ec7b883edb8d",
-                "reference": "f391a00de78ec7ec8cf5cdcdae59ec7b883edb8d",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/ffc7f5692092df31515df2a5ecf3b7302b3ddacf",
+                "reference": "ffc7f5692092df31515df2a5ecf3b7302b3ddacf",
                 "shasum": ""
             },
             "require": {
@@ -7330,7 +7332,7 @@
                 "interoperability",
                 "standards"
             ],
-            "time": "2019-06-13T11:15:36+00:00"
+            "time": "2019-10-14T12:27:06+00:00"
         },
         {
             "name": "symfony/stopwatch",
@@ -7841,28 +7843,28 @@
         },
         {
             "name": "symfony/var-exporter",
-            "version": "v4.3.2",
+            "version": "v4.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-exporter.git",
-                "reference": "9dee83031dcf6dcb53bb7ec1c51de085329bf5cb"
+                "reference": "e566070effe60b8d16b99e958cdbd92aa2e470cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-exporter/zipball/9dee83031dcf6dcb53bb7ec1c51de085329bf5cb",
-                "reference": "9dee83031dcf6dcb53bb7ec1c51de085329bf5cb",
+                "url": "https://api.github.com/repos/symfony/var-exporter/zipball/e566070effe60b8d16b99e958cdbd92aa2e470cb",
+                "reference": "e566070effe60b8d16b99e958cdbd92aa2e470cb",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1.3"
             },
             "require-dev": {
-                "symfony/var-dumper": "^4.1.1"
+                "symfony/var-dumper": "^4.1.1|^5.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.3-dev"
+                    "dev-master": "4.4-dev"
                 }
             },
             "autoload": {
@@ -7897,7 +7899,7 @@
                 "instantiate",
                 "serialize"
             ],
-            "time": "2019-06-22T08:39:44+00:00"
+            "time": "2019-12-01T08:39:58+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -8174,19 +8176,19 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "role": "Lead Developer",
                     "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org"
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Armin Ronacher",
-                    "role": "Project Founder",
-                    "email": "armin.ronacher@active-4.com"
+                    "email": "armin.ronacher@active-4.com",
+                    "role": "Project Founder"
                 },
                 {
                     "name": "Twig Team",
-                    "role": "Contributors",
-                    "homepage": "https://twig.symfony.com/contributors"
+                    "homepage": "https://twig.symfony.com/contributors",
+                    "role": "Contributors"
                 }
             ],
             "description": "Twig, the flexible, fast, and secure template language for PHP",
@@ -8492,7 +8494,9 @@
         "php": "^7.1.3",
         "ext-ctype": "*",
         "ext-fileinfo": "*",
-        "ext-iconv": "*"
+        "ext-json": "*",
+        "ext-iconv": "*",
+        "ext-pcntl": "*"
     },
     "platform-dev": []
 }
