@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Table(
- *     name="`user`",
+ *     name="`User`",
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqSubscriberExternalId",
