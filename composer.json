@@ -21,6 +21,7 @@
         "danog/madelineproto": "^4",
         "gedmo/doctrine-extensions": "^2.4",
         "googlecodelabs/tensorflow-for-poets-2": "dev-master",
+        "guzzlehttp/guzzle": "^7.0",
         "lcobucci/jwt": "^3.3",
         "mybuilder/cronos-bundle": "^2.1",
         "nelmio/api-doc-bundle": "^3.4",
