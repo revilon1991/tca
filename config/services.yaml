@@ -9,6 +9,7 @@ services:
             $projectDir: '%kernel.project_dir%'
             $photoPublicDir: '%kernel.project_dir%/public/photo'
             $tarantoolQueueRuntimeMode: '%tarantool.queue.runtime_mode%'
+            $domain: '%env(DOMAIN)%'
 
     App\:
         resource: '../src/*'
@@ -30,13 +31,19 @@ services:
             tags: ['tarantool.queue.consumer']
         Sonata\AdminBundle\Controller\CRUDController:
             tags: ['controller.service_arguments']
+        App\Component\Csrf\CsrfSetterAwareInterface:
+            tags:
+                - { name: kernel.event_listener, event: kernel.response }
+        App\Component\Csrf\CsrfValidatorAwareInterface:
+            tags:
+                - { name: kernel.event_listener, event: kernel.request }
 
     App\Component\Telegram\Provider\TelegramProvider:
         arguments:
-            $proxyHost: '%env(string:MADELINEPROTO_CONNECTION_PROXY_HOST)%'
-            $proxyPort: '%env(int:MADELINEPROTO_CONNECTION_PROXY_PORT)%'
-            $proxyUsername: '%env(string:MADELINEPROTO_CONNECTION_PROXY_USERNAME)%'
-            $proxyPassword: '%env(string:MADELINEPROTO_CONNECTION_PROXY_PASSWORD)%'
+            $proxyHost: '%env(string:PROXY_HOST)%'
+            $proxyPort: '%env(int:PROXY_PORT)%'
+            $proxyUsername: '%env(string:PROXY_USERNAME)%'
+            $proxyPassword: '%env(string:PROXY_PASSWORD)%'
             $appId: '%env(string:MADELINEPROTO_CONNECTION_API_ID)%'
             $appHash: '%env(string:MADELINEPROTO_CONNECTION_API_HASH)%'
             $botToken: '%env(string:MADELINEPROTO_CONNECTION_BOT_TOKEN)%'
@@ -73,3 +80,35 @@ services:
             - '%env(TARANTOOL_URL)%'
 
     App\Component\Tarantool\Handler\ConsumerHandler: [!tagged tarantool.queue.consumer]
+
+    Lcobucci\JWT\Signer\Hmac\Sha256: ~
+
+    App\Component\JwtToken\Handler\JwtTokenHandler:
+        arguments:
+            - '@Lcobucci\JWT\Signer\Hmac\Sha256'
+            - '%env(JWT_TOKEN_SIGNATURE)%'
+            - '%env(DOMAIN)%'
+            - '%env(DOMAIN)%'
+
+    App\UseCase\BotUpdates\BotUpdatesHandler:
+        bind:
+            $proxyUrl: '%env(resolve:PROXY_URL)%'
+            $botToken: '%env(string:MADELINEPROTO_CONNECTION_BOT_TOKEN)%'
+
+    GuzzleHttp\Client: ~
+
+    App\EventListener\ApiResponseListener:
+        decorates: Wakeapp\Bundle\ApiPlatformBundle\EventListener\ApiResponseListener
+        arguments:
+            $guesser: '@App\Guesser\AppApiErrorCodeGuesser'
+            $apiResultDtoClass: App\Dto\ApiDocResultDto
+            $debug: '%env(bool:API_RESPONSE_DEBUG)%'
+
+    App\UseCase\SendMail\SendMailHandler:
+        bind:
+            $mailerDsn: '%env(MAILER_DSN)%'
+
+    App\UseCase\SendTelegramMessage\SendTelegramMessageHandler:
+        bind:
+            $proxyUrl: '%env(resolve:PROXY_URL)%'
+            $botToken: '%env(string:MADELINEPROTO_CONNECTION_BOT_TOKEN)%'

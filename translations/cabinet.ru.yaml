@@ -1,0 +1,15 @@
+# auth form registration
+auth_form_registration_header: Регистрация
+auth_form_registration_username_placeholder: Имя пользователя
+auth_form_registration_password_placeholder: Пароль
+auth_form_registration_password_reply_placeholder: Повторите пароль
+auth_form_registration_hash_bot_placeholder: Хеш бота
+auth_form_registration_submit: Зарегистрироваться
+
+# restore password form
+restore_password_form_email_success: Ссылка для восстановления пароля отправлена на почту %email%
+restore_password_form_telegram_success: Ссылка для восстановления пароля отправлена в телеграм личным сообщением
+change_password_restore_form_success: Пароль успешно изменен
+
+# edit user
+edit_user_form_success: Изменения сохранены

@@ -72,6 +72,8 @@ SQL;
     {
         $paramsList = [];
 
+        $userList = array_column($userList, 'user');
+
         foreach ($userList as $user) {
             $paramsList[] = [
                 'external_id' => (string)$user['id'],
@@ -90,25 +92,6 @@ SQL;
                 'first_name',
                 'last_name',
             ]);
-        }
-    }
-
-    /**
-     * @param array $subscriberList
-     * @param string $groupId
-     *
-     * @throws DBALException
-     */
-    public function addGroupSubscriptionList(array $subscriberList, string $groupId): void
-    {
-        foreach ($subscriberList as &$subscriber) {
-            $subscriber['group_id'] = $groupId;
-        }
-
-        unset($subscriber);
-
-        foreach (array_chunk($subscriberList, self::INSERT_CHUNK) as $params) {
-            $this->manager->insertBulk('group_subscriber', $params, false, false);
         }
     }
 
@@ -136,23 +119,27 @@ SQL;
     }
 
     /**
-     * @param array $externalIdList
-     * @param array $externalHashList
+     * @param array $userList
      *
      * @return array
      *
      * @throws DBALException
      */
-    public function getSubscriberIdList(array $externalIdList, array $externalHashList): array
+    public function getSubscriberIdList(array $userList): array
     {
         $sql = <<<SQL
             select
+                concat(s.external_id, s.external_hash) external_key,
                 s.id subscriber_id
             from subscriber s
             where 1
                 and s.external_id in (:external_id)
                 and s.external_hash in (:external_hash)
 SQL;
+
+        $userList = array_column($userList, 'user');
+        $externalIdList = array_column($userList, 'id');
+        $externalHashList = array_column($userList, 'access_hash');
 
         $stmt = $this->manager->getConnection()->executeQuery(
             $sql,
@@ -166,6 +153,34 @@ SQL;
             ]
         );
 
-        return $stmt->fetchAll();
+        return $this->manager->getResultPairList($stmt, 'external_key', 'subscriber_id');
+    }
+
+    /**
+     * @param array $userList
+     * @param array $subscriberIdList
+     * @param string $groupId
+     *
+     * @throws DBALException
+     */
+    public function saveSubscriberGroupList(array $userList, array $subscriberIdList, string $groupId): void
+    {
+        $paramsList = [];
+
+        foreach ($userList as $user) {
+            $externalKey = $user['user']['id'] . $user['user']['access_hash'];
+
+            $subscriberId = $subscriberIdList[$externalKey];
+
+            $paramsList[] = [
+                'role' => $user['role'],
+                'group_id' => $groupId,
+                'subscriber_id' => $subscriberId,
+            ];
+        }
+
+        foreach (array_chunk($paramsList, self::INSERT_CHUNK) as $params) {
+            $this->manager->insertBulk('group_subscriber', $params, false, false);
+        }
     }
 }

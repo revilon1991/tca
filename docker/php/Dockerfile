@@ -39,17 +39,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y tzdata \
     && dpkg-reconfigure --frontend noninteractive tzdata
 
-###> tarantool ###
-RUN cd /tmp && \
-    git clone -b php7-v2 https://github.com/tarantool/tarantool-php.git && \
-    cd ./tarantool-php && \
-    /usr/local/bin/phpize && \
-    ./configure && \
-    make && \
-    make install
-RUN echo "extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/tarantool.so" >> /usr/local/etc/php/conf.d/20-tarantool.ini
-###> tarantool ###
-
 ###> tensorflow ###
 RUN pip3 install --upgrade pip
 RUN pip3 install tensorflow

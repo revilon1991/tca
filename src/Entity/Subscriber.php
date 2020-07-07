@@ -16,7 +16,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqExternalId",
- *             columns={"external_id", "external_hash"}
+ *             columns={"externalId", "externalHash"}
  *         )
  *     }
  * )
@@ -81,7 +81,7 @@ class Subscriber
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(targetEntity=Group::class, mappedBy="subscriberList", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity=GroupSubscriber::class, mappedBy="group")
      */
     private $groupList;
 
@@ -105,6 +105,13 @@ class Subscriber
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $people;
+
+    /**
+     * @var User|null
+     *
+     * @ORM\OneToOne(targetEntity=User::class, mappedBy="subscriber")
+     */
+    private $user;
 
     public function __construct()
     {
@@ -312,5 +319,21 @@ class Subscriber
     public function setPeople(bool $people): void
     {
         $this->people = $people;
+    }
+
+    /**
+     * @return User|null
+     */
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User|null $user
+     */
+    public function setUser(?User $user): void
+    {
+        $this->user = $user;
     }
 }

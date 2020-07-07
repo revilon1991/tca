@@ -15,9 +15,10 @@ doctrine:
             !php/const App\Doctrine\Dbal\Type\GroupTypeEnumType::NAME: App\Doctrine\Dbal\Type\GroupTypeEnumType
             !php/const App\Doctrine\Dbal\Type\SubscriberTypeEnumType::NAME: App\Doctrine\Dbal\Type\SubscriberTypeEnumType
             !php/const App\Doctrine\Dbal\Type\MaleClassificationEnumType::NAME: App\Doctrine\Dbal\Type\MaleClassificationEnumType
+            !php/const App\Doctrine\Dbal\Type\SubscriberRoleEnumType::NAME: App\Doctrine\Dbal\Type\SubscriberRoleEnumType
     orm:
         auto_generate_proxy_classes: true
-        naming_strategy: doctrine.orm.naming_strategy.underscore
+        naming_strategy: doctrine.orm.naming_strategy.default
         auto_mapping: true
         mappings:
             App:

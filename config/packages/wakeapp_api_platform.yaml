@@ -1,0 +1,5 @@
+wakeapp_api_platform:
+    api_result_dto_class: App\Dto\ApiDocResultDto
+    api_area_guesser_service: App\Guesser\ApiAreaGuesser
+    error_code_guesser_service: App\Guesser\AppApiErrorCodeGuesser
+    response_debug: '%env(bool:API_RESPONSE_DEBUG)%'

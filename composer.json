@@ -11,14 +11,18 @@
         "php": "^7.1.3",
         "ext-ctype": "*",
         "ext-fileinfo": "*",
-        "ext-json": "*",
         "ext-iconv": "*",
+        "ext-json": "*",
         "ext-pcntl": "*",
         "amphp/dns": "dev-master#aa1892bd as 0.9",
-        "danog/madelineproto": "dev-master",
+        "amphp/socket": "0.10.12 as 1",
+        "amphp/websocket": "dev-master#db2da8c5b3ed22eae37da5ffa10ab3ea8de19342 as 1",
+        "amphp/websocket-client": "dev-master#aff808025637bd705672338b4904ad03a4dbdc04 as 1",
+        "danog/madelineproto": "^4",
         "gedmo/doctrine-extensions": "^2.4",
         "googlecodelabs/tensorflow-for-poets-2": "dev-master",
         "mybuilder/cronos-bundle": "^2.1",
+        "nelmio/api-doc-bundle": "^3.4",
         "rybakit/msgpack": "^0.5.4",
         "sensio/framework-extra-bundle": "^5.4",
         "sonata-project/admin-bundle": "^3.52",
@@ -28,14 +32,17 @@
         "symfony/dotenv": "4.3.*",
         "symfony/flex": "^1.3.1",
         "symfony/framework-bundle": "4.3.*",
+        "symfony/mailer": "4.3.*",
         "symfony/monolog-bundle": "^3.4",
         "symfony/orm-pack": "^1.0",
         "symfony/yaml": "4.3.*",
         "tarantool/client": "^0.5.2",
         "tarantool/queue": "^0.8.0",
+        "wakeapp/api-platform-bundle": "^2.0",
         "wakeapp/dto-resolver": "^1.1"
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.2",
         "symfony/var-dumper": "4.3.*"
     },
     "config": {
@@ -84,6 +91,10 @@
         }
     },
     "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/wakeapp/swagger-resolver-bundle.git"
+        },
         {
             "type": "git",
             "url": "https://github.com/danog/phpseclib"

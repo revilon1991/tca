@@ -17,7 +17,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqExternalId",
- *             columns={"external_id", "external_hash"}
+ *             columns={"externalId", "externalHash"}
  *         )
  *     })
  * @ORM\Entity()
@@ -60,8 +60,7 @@ class Group
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(targetEntity=Subscriber::class, inversedBy="groupList", cascade={"persist"})
-     * @ORM\JoinTable()
+     * @ORM\OneToMany(targetEntity=GroupSubscriber::class, mappedBy="group")
      */
     private $subscriberList;
 

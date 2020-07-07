@@ -1,0 +1,18 @@
+# Database Errors 1 - 9
+1: Unexpected database error
+
+# Auth errors 6xx
+600: Username already exists
+601: Failed to determine the IP address of the user
+602: Bot hash not found
+603: User with such username or password not found
+604: User with such email not found
+605: Unknown password recovery method
+606: Password recovery user does not exist
+607: Password recovery link already used
+
+# Token Errors 8xx
+800: Failed to encode token
+801: Authentication token not found
+802: Authentication token invalid
+803: Invalid CSRF token

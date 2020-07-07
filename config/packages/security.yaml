@@ -1,27 +1,56 @@
 security:
     providers:
+        jwt_user_provider:
+            id: App\Security\User\JwtUserProvider
         admin_user_provider:
             memory:
                 users:
                     '%env(resolve:ADMIN_USER_LOGIN)%':
-                        password:   '%env(resolve:ADMIN_USER_PASSWORD_HASH)%'
-                        roles:      ROLE_ADMIN
+                        password: '%env(resolve:ADMIN_USER_PASSWORD_HASH)%'
+                        roles: ROLE_ADMIN
 
     encoders:
+        App\Entity\User:
+            algorithm: bcrypt
+            cost: 12
         Symfony\Component\Security\Core\User\User:
-            algorithm:  bcrypt
-            cost:       12
+            algorithm: bcrypt
+            cost: 12
 
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         admin:
-            pattern:    ^/admin
-            anonymous:  false
-            provider:   admin_user_provider
+            pattern: ^/admin
+            anonymous: false
+            provider: admin_user_provider
             http_basic: ~
-            context:    'sonata_admin'
+            context: 'sonata_admin'
+        api_open:
+            pattern: '^/cabinet/(api/(login|registration|restore_password)|auth|change_password_restore)$'
+            anonymous: true
+            security: false
+            stateless: false
+            host: '%env(DOMAIN)%'
+        api_user_secure:
+            pattern: ^/cabinet
+            anonymous: false
+            security: true
+            stateless: false
+            logout: ~
+            provider: jwt_user_provider
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /cabinet
+                domain: '%env(DOMAIN)%'
+                httponly: true
+                always_remember_me: true
+            guard:
+                authenticators:
+                    - App\Security\JwtGuardAuthenticator
 
     access_control:
         - { path: ^/admin/, roles: ROLE_ADMIN }
+        - { path: ^/cabinet/, roles: ROLE_USER }

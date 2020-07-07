@@ -13,7 +13,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqExternalId",
- *             columns={"external_id", "external_hash"}
+ *             columns={"externalId", "externalHash"}
  *         )
  *     }
  * )

@@ -36,16 +36,13 @@ class FetchGroupSubscriberHandler
 
         foreach ($groupList as $group) {
             $userList = $this->telegramProvider->getChannelUserList($group['username']);
-            $userList = array_column($userList, 'user');
-            $externalIdList = array_column($userList, 'id');
-            $externalHashList = array_column($userList, 'access_hash');
 
             $this->manager->deleteUnsubscribedList($group['id']);
             $this->manager->saveSubscriberList($userList);
 
-            $subscriberIdList = $this->manager->getSubscriberIdList($externalIdList, $externalHashList);
+            $subscriberIdList = $this->manager->getSubscriberIdList($userList);
 
-            $this->manager->addGroupSubscriptionList($subscriberIdList, $group['id']);
+            $this->manager->saveSubscriberGroupList($userList, $subscriberIdList, $group['id']);
             $this->manager->saveCountRealSubscriber($group['id'], count($subscriberIdList));
         }
     }

@@ -14,7 +14,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqPredictDateGroup",
- *             columns={"date", "group_id"}
+ *             columns={"date", "groupId"}
  *         )
  *     }
  * )
@@ -83,4 +83,132 @@ class ReportGroup
      * @ORM\Column(type="integer", nullable=true)
      */
     private $countWoman;
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getDate(): DateTime
+    {
+        return $this->date;
+    }
+
+    /**
+     * @param DateTime $date
+     */
+    public function setDate(DateTime $date): void
+    {
+        $this->date = $date;
+    }
+
+    /**
+     * @return Group
+     */
+    public function getGroup(): Group
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param Group $group
+     */
+    public function setGroup(Group $group): void
+    {
+        $this->group = $group;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountSubscriber(): int
+    {
+        return $this->countSubscriber;
+    }
+
+    /**
+     * @param int $countSubscriber
+     */
+    public function setCountSubscriber(int $countSubscriber): void
+    {
+        $this->countSubscriber = $countSubscriber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountRealSubscriber(): int
+    {
+        return $this->countRealSubscriber;
+    }
+
+    /**
+     * @param int $countRealSubscriber
+     */
+    public function setCountRealSubscriber(int $countRealSubscriber): void
+    {
+        $this->countRealSubscriber = $countRealSubscriber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountPeople(): int
+    {
+        return $this->countPeople;
+    }
+
+    /**
+     * @param int $countPeople
+     */
+    public function setCountPeople(int $countPeople): void
+    {
+        $this->countPeople = $countPeople;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountMan(): int
+    {
+        return $this->countMan;
+    }
+
+    /**
+     * @param int $countMan
+     */
+    public function setCountMan(int $countMan): void
+    {
+        $this->countMan = $countMan;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCountWoman(): int
+    {
+        return $this->countWoman;
+    }
+
+    /**
+     * @param int $countWoman
+     */
+    public function setCountWoman(int $countWoman): void
+    {
+        $this->countWoman = $countWoman;
+    }
 }
