@@ -1,4 +1,7 @@
 {
+    "adrenalinkin/doctrine-naming-strategy": {
+        "version": "v1.0.1"
+    },
     "adrenalinkin/swagger-resolver-bundle": {
         "version": "v0.4.3"
     },

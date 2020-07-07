@@ -4,8 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "11097dd231de835fcf4e343cf394309e",
+    "content-hash": "8f4f71b5135875b7d7dc89d42cd44332",
     "packages": [
+        {
+            "name": "adrenalinkin/doctrine-naming-strategy",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/adrenalinkin/doctrine-naming-strategy.git",
+                "reference": "9b763928ff8024516cb9ed1b74afe18fd94ab528"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/adrenalinkin/doctrine-naming-strategy/zipball/9b763928ff8024516cb9ed1b74afe18fd94ab528",
+                "reference": "9b763928ff8024516cb9ed1b74afe18fd94ab528",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/orm": "~2.3",
+                "php": "~7.1"
+            },
+            "suggest": {
+                "doctrine/doctrine-bundle": "Provides integration Doctrine with Symfony framework",
+                "symfony/symfony": "Allows more advanced functionality with full Symfony package"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Linkin\\Component\\DoctrineNamingStrategy\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Viktor Linkin",
+                    "email": "adrenalinkin@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Custom Doctrine ORM naming strategy",
+            "keywords": [
+                "doctrine",
+                "doctrine-naming-strategy",
+                "doctrine-orm"
+            ],
+            "time": "2019-04-13T16:06:13+00:00"
+        },
         {
             "name": "amphp/amp",
             "version": "v2.3.1",

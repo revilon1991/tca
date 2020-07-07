@@ -112,3 +112,5 @@ services:
         bind:
             $proxyUrl: '%env(resolve:PROXY_URL)%'
             $botToken: '%env(string:MADELINEPROTO_CONNECTION_BOT_TOKEN)%'
+
+    Linkin\Component\DoctrineNamingStrategy\ORM\Mapping\CamelCaseNamingStrategy: ~
