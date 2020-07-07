@@ -64,7 +64,7 @@ class ChangePasswordRestoreFormHandler implements CsrfSetterAwareInterface
             throw new ChangePasswordRestoreFormException($message);
         }
 
-        if ($user['updated_at'] !== $userUpdatedAt) {
+        if ($user['updatedAt'] !== $userUpdatedAt) {
             $message = "User id '$userId' have not match updated at from context. Restore method $restoreMethod";
 
             throw new ChangePasswordRestoreFormException($message);

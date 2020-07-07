@@ -36,7 +36,7 @@ class LoginManager
                 id,
                 username,
                 roles
-            from `user`
+            from `User`
             where 1
                 and username = :username
 SQL;
@@ -59,11 +59,11 @@ SQL;
     {
         $now = date('Y-m-d H:i:s');
 
-        $this->manager->update('user', [
+        $this->manager->update('User', [
             'id' => $userId,
-            'actual_ip' => $clientIp,
-            'actual_user_agent' => $userAgent,
-            'actual_login_time' => $now,
+            'actualIp' => $clientIp,
+            'actualUserAgent' => $userAgent,
+            'actualLoginTime' => $now,
         ]);
     }
 }

@@ -36,15 +36,15 @@ class ReportGroupManager
 
         $sql = <<<SQL
             select
-                group_id,
+                groupId,
                 unix_timestamp(date) as date,
-                count_subscriber,
-                count_man,
-                count_woman
-            from report_group
+                countSubscriber,
+                countMan,
+                countWoman
+            from ReportGroup
             where 1
                 and date between :before_date and :after_date
-                and group_id = :group_id
+                and groupId = :group_id
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql, [

@@ -42,13 +42,13 @@ class FetchSubscriberPhotoManager
         $sql = <<<SQL
             select
                 s.id,
-                s.external_id,
-                s.external_hash,
-                group_concat(distinct concat(p.external_id, p.external_hash)) photo_unique_keys
-            from subscriber s
-            inner join group_subscriber gs on s.id = gs.subscriber_id
-            left join photo p on s.id = p.subscriber_id
-            group by s.id, s.external_id, s.external_hash
+                s.externalId,
+                s.externalHash,
+                group_concat(distinct concat(p.externalId, p.externalHash)) photoUniqueKeys
+            from Subscriber s
+            inner join GroupSubscriber gs on s.id = gs.subscriberId
+            left join Photo p on s.id = p.subscriberId
+            group by s.id, s.externalId, s.externalHash
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);
@@ -66,8 +66,8 @@ SQL;
     public function getSubscriberCount(): int
     {
         $sql = <<<SQL
-            select count(distinct gs.subscriber_id)
-            from group_subscriber gs
+            select count(distinct gs.subscriberId)
+            from GroupSubscriber gs
 SQL;
         $stmt = $this->manager->getConnection()->executeQuery($sql);
 
@@ -90,7 +90,7 @@ SQL;
     public function addPhotoList(array $photoList): void
     {
         foreach (array_chunk($photoList, self::INSERT_CHUNK) as $chunkList) {
-            $this->manager->insertBulk('photo', $chunkList);
+            $this->manager->insertBulk('Photo', $chunkList);
         }
     }
 }

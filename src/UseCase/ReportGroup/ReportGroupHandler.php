@@ -36,9 +36,9 @@ class ReportGroupHandler
 
         foreach ($reportGroupList as &$reportGroup) {
             $reportGroup['date'] = (int)$reportGroup['date'];
-            $reportGroup['count_subscriber'] = (int)$reportGroup['count_subscriber'];
-            $reportGroup['count_man'] = (int)$reportGroup['count_man'];
-            $reportGroup['count_woman'] = (int)$reportGroup['count_woman'];
+            $reportGroup['countSubscriber'] = (int)$reportGroup['countSubscriber'];
+            $reportGroup['countMan'] = (int)$reportGroup['countMan'];
+            $reportGroup['countWoman'] = (int)$reportGroup['countWoman'];
         }
 
         return $reportGroupList;

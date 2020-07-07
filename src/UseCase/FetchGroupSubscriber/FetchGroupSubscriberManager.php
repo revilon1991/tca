@@ -37,7 +37,7 @@ class FetchGroupSubscriberManager
             select
                 username,
                 id
-            from `group`
+            from `Group`
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);
@@ -54,8 +54,8 @@ SQL;
     {
         $sql = <<<SQL
             delete gs
-            from group_subscriber gs
-            where gs.group_id = :group_id
+            from GroupSubscriber gs
+            where gs.groupId = :group_id
 SQL;
 
         $this->manager->getConnection()->executeUpdate($sql, [
@@ -76,21 +76,21 @@ SQL;
 
         foreach ($userList as $user) {
             $paramsList[] = [
-                'external_id' => (string)$user['id'],
-                'external_hash' => (string)$user['access_hash'],
+                'externalId' => (string)$user['id'],
+                'externalHash' => (string)$user['access_hash'],
                 'type' => $user['type'],
                 'phone' => $user['phone'] ?? null,
                 'username' => $user['username'] ?? null,
-                'first_name' => $user['first_name'] ?? null,
-                'last_name' => $user['last_name'] ?? null,
+                'firstName' => $user['first_name'] ?? null,
+                'lastName' => $user['last_name'] ?? null,
             ];
         }
 
         foreach (array_chunk($paramsList, self::UPSERT_CHUNK) as $params) {
-            $this->manager->upsertBulk('subscriber', $params, [
+            $this->manager->upsertBulk('Subscriber', $params, [
                 'phone',
-                'first_name',
-                'last_name',
+                'firstName',
+                'lastName',
             ]);
         }
     }
@@ -106,14 +106,14 @@ SQL;
         $now = date('Y-m-d');
 
         $this->manager->upsert(
-            'report_group',
+            'ReportGroup',
             [
                 'date' => $now,
-                'group_id' => $groupId,
-                'count_real_subscriber' => $countRealSubscriber,
+                'groupId' => $groupId,
+                'countRealSubscriber' => $countRealSubscriber,
             ],
             [
-                'count_real_subscriber',
+                'countRealSubscriber',
             ]
         );
     }
@@ -129,12 +129,12 @@ SQL;
     {
         $sql = <<<SQL
             select
-                concat(s.external_id, s.external_hash) external_key,
-                s.id subscriber_id
-            from subscriber s
+                concat(s.externalId, s.externalHash) externalKey,
+                s.id subscriberId
+            from Subscriber s
             where 1
-                and s.external_id in (:external_id)
-                and s.external_hash in (:external_hash)
+                and s.externalId in (:external_id)
+                and s.externalHash in (:external_hash)
 SQL;
 
         $userList = array_column($userList, 'user');
@@ -153,7 +153,7 @@ SQL;
             ]
         );
 
-        return $this->manager->getResultPairList($stmt, 'external_key', 'subscriber_id');
+        return $this->manager->getResultPairList($stmt, 'externalKey', 'subscriberId');
     }
 
     /**
@@ -174,13 +174,13 @@ SQL;
 
             $paramsList[] = [
                 'role' => $user['role'],
-                'group_id' => $groupId,
-                'subscriber_id' => $subscriberId,
+                'groupId' => $groupId,
+                'subscriberId' => $subscriberId,
             ];
         }
 
         foreach (array_chunk($paramsList, self::INSERT_CHUNK) as $params) {
-            $this->manager->insertBulk('group_subscriber', $params, false, false);
+            $this->manager->insertBulk('GroupSubscriber', $params, false, false);
         }
     }
 }

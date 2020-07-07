@@ -81,15 +81,15 @@ class FetchSubscriberPhotoHandler
 
         foreach ($this->manager->getSubscriberList() as $row) {
             $inputUserDto = new InputUserDto([
-                'userId' => $row['external_id'],
-                'accessHash' => $row['external_hash'],
+                'userId' => $row['externalId'],
+                'accessHash' => $row['externalHash'],
             ]);
 
             $subscriberPhotoMetaList = $this->telegramProvider->getSubscriberPhotoMetaList($inputUserDto);
 
             $freshPhotoMetaList = $this->getFreshPhotoMetaList(
                 $subscriberPhotoMetaList,
-                (string)$row['photo_unique_keys']
+                (string)$row['photoUniqueKeys']
             );
 
             foreach ($freshPhotoMetaList as $photoMeta) {
@@ -107,9 +107,9 @@ class FetchSubscriberPhotoHandler
 
                 $paramsList[] = [
                     'id' => $photoId,
-                    'subscriber_id' => $row['id'],
-                    'external_id' => (string)$photoMeta['id'],
-                    'external_hash' => (string)$photoMeta['access_hash'],
+                    'subscriberId' => $row['id'],
+                    'externalId' => (string)$photoMeta['id'],
+                    'externalHash' => (string)$photoMeta['access_hash'],
                     'extension' => $extensions[0],
                 ];
             }

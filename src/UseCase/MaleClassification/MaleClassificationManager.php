@@ -36,8 +36,8 @@ class MaleClassificationManager
             select
                 p.id,
                 p.extension
-            from photo p
-            inner join group_subscriber gs on gs.subscriber_id = p.subscriber_id
+            from Photo p
+            inner join GroupSubscriber gs on gs.subscriberId = p.subscriberId
             where p.people = :photo_is_people
 SQL;
 
@@ -59,11 +59,11 @@ SQL;
 
         $sql = <<<SQL
             select
-                gs.group_id,
-                gs.subscriber_id,
-                p.id photo_id
-            from photo p
-            inner join group_subscriber gs on gs.subscriber_id = p.subscriber_id
+                gs.groupId,
+                gs.subscriberId,
+                p.id photoId
+            from Photo p
+            inner join GroupSubscriber gs on gs.subscriberId = p.subscriberId
             where p.people = :photo_is_people
 SQL;
         $stmt = $this->manager->getConnection()->executeQuery($sql, [
@@ -71,7 +71,7 @@ SQL;
         ]);
 
         foreach ($stmt->fetchAll() as $row) {
-            $resultList[$row['group_id']][$row['subscriber_id']][] = $row['photo_id'];
+            $resultList[$row['groupId']][$row['subscriberId']][] = $row['photoId'];
         }
 
         return $resultList;
@@ -91,16 +91,16 @@ SQL;
         foreach ($countMaleList as $groupId => $countMale) {
             $paramsList[] = [
                 'date' => $now,
-                'group_id' => $groupId,
-                'count_man' => $countMale[MaleClassificationEnum::MAN],
-                'count_woman' => $countMale[MaleClassificationEnum::WOMAN],
+                'groupId' => $groupId,
+                'countMan' => $countMale[MaleClassificationEnum::MAN],
+                'countWoman' => $countMale[MaleClassificationEnum::WOMAN],
             ];
         }
 
         foreach (array_chunk($paramsList, self::UPSERT_CHUNK) as $chunk) {
-            $this->manager->upsertBulk('report_group', $chunk, [
-                'count_man',
-                'count_woman',
+            $this->manager->upsertBulk('ReportGroup', $chunk, [
+                'countMan',
+                'countWoman',
             ]);
         }
     }

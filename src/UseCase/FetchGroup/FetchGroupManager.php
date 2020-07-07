@@ -30,7 +30,7 @@ class FetchGroupManager
      */
     public function saveGroup(array $params): void
     {
-        $this->manager->upsert('group', $params, [
+        $this->manager->upsert('Group', $params, [
             'title',
             'about',
         ]);
@@ -49,10 +49,10 @@ class FetchGroupManager
         $sql = <<<SQL
             select
                 g.id
-            from `group` g
+            from `Group` g
             where 1
-                and g.external_id = :external_id
-                and g.external_hash = :external_hash
+                and g.externalId = :external_id
+                and g.externalHash = :external_hash
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql, [
@@ -74,13 +74,13 @@ SQL;
         $now = date('Y-m-d');
 
         $params = [
-            'group_id' => $groupId,
+            'groupId' => $groupId,
             'date' => $now,
-            'count_subscriber' => $countSubscriber,
+            'countSubscriber' => $countSubscriber,
         ];
 
-        $this->manager->upsert('report_group', $params, [
-            'count_subscriber',
+        $this->manager->upsert('ReportGroup', $params, [
+            'countSubscriber',
         ]);
     }
 
@@ -91,7 +91,7 @@ SQL;
      */
     public function addPhoto(array $params): void
     {
-        $this->manager->insert('photo', $params);
+        $this->manager->insert('Photo', $params);
     }
 
     /**
@@ -107,10 +107,10 @@ SQL;
         $sql = <<<SQL
             select
                 id
-            from photo p
+            from Photo p
             where 1
-                and p.external_id = :external_id
-                and p.external_hash = :external_hash
+                and p.externalId = :external_id
+                and p.externalHash = :external_hash
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql, [
@@ -139,7 +139,7 @@ SQL;
         $sql = <<<SQL
             select
                 username
-            from `group`
+            from `Group`
 SQL;
         $stmt = $this->manager->getConnection()->executeQuery($sql);
 

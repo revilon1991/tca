@@ -79,8 +79,8 @@ class FetchGroupHandler
             $channelInfo = $this->telegramProvider->getChannelInfo($groupUsername);
 
             $params = [
-                'external_id' => $channelInfo->getExternalId(),
-                'external_hash' => $channelInfo->getExternalHash(),
+                'externalId' => $channelInfo->getExternalId(),
+                'externalHash' => $channelInfo->getExternalHash(),
                 'type' => $channelInfo->getType(),
                 'title' => $channelInfo->getTitle(),
                 'username' => $channelInfo->getUsername(),
@@ -116,9 +116,9 @@ class FetchGroupHandler
 
             $params = [
                 'id' => $photoId,
-                'group_id' => $groupId,
-                'external_id' => $channelInfo->getPhotoExternalId(),
-                'external_hash' => $channelInfo->getPhotoExternalHash(),
+                'groupId' => $groupId,
+                'externalId' => $channelInfo->getPhotoExternalId(),
+                'externalHash' => $channelInfo->getPhotoExternalHash(),
                 'extension' => $extensions[0],
             ];
 

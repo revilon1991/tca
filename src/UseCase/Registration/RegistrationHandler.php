@@ -77,17 +77,17 @@ class RegistrationHandler implements CsrfValidatorAwareInterface
         $encoder = $this->encoderFactory->getEncoder(User::class);
         $encodedPassword = $encoder->encodePassword($password, null);
 
-        $subscriberId = $this->manager->getSubscriberId($user['subscriber_external_id']);
+        $subscriberId = $this->manager->getSubscriberId($user['subscriberExternalId']);
 
         $params = [
             'id' => $user['id'],
             'username' => $username,
             'password' => $encodedPassword,
             'roles' => json_encode(['ROLE_USER']),
-            'subscriber_id' => $subscriberId,
-            'actual_login_time' => date('Y-m-d H:i:s'),
-            'actual_ip' => $clientIp,
-            'actual_user_agent' => $userAgent,
+            'subscriberId' => $subscriberId,
+            'actualLoginTime' => date('Y-m-d H:i:s'),
+            'actualIp' => $clientIp,
+            'actualUserAgent' => $userAgent,
             'referer' => $referer,
         ];
 

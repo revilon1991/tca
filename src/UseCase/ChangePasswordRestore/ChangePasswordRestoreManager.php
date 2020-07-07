@@ -34,8 +34,8 @@ class ChangePasswordRestoreManager
         $sql = <<<SQL
             select
                 id,
-                updated_at
-            from `user`
+                updatedAt
+            from `User`
             where id = :user_id
 SQL;
 
@@ -53,6 +53,6 @@ SQL;
      */
     public function saveUser(array $params): void
     {
-        $this->manager->update('user', $params);
+        $this->manager->update('User', $params);
     }
 }

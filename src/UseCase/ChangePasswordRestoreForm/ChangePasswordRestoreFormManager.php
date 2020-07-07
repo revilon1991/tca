@@ -34,8 +34,8 @@ class ChangePasswordRestoreFormManager
         $sql = <<<SQL
             select
                 id,
-                updated_at
-            from `user`
+                updatedAt
+            from `User`
             where id = :user_id
 SQL;
 

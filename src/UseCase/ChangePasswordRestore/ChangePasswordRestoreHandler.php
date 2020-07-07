@@ -89,7 +89,7 @@ class ChangePasswordRestoreHandler implements CsrfValidatorAwareInterface
             throw new ApiException(ApiException::RESTORE_PASSWORD_USER_NOT_FOUND);
         }
 
-        if ($user['updated_at'] !== $userUpdatedAt) {
+        if ($user['updatedAt'] !== $userUpdatedAt) {
             throw new ApiException(ApiException::RESTORE_PASSWORD_LINK_OLDER);
         }
 

@@ -33,8 +33,8 @@ class BotUpdatesManager
     {
         $sql = <<<SQL
             select id
-            from subscriber
-            where external_id = :external_id
+            from Subscriber
+            where externalId = :external_id
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql, [
@@ -54,15 +54,15 @@ SQL;
     public function saveUser(string $userId, string $botHash, ?string $subscriberId = null): void
     {
         $this->manager->upsert(
-            'user',
+            'User',
             [
-                'subscriber_id' => $subscriberId,
-                'bot_hash' => $botHash,
-                'subscriber_external_id' => $userId,
+                'subscriberId' => $subscriberId,
+                'botHash' => $botHash,
+                'subscriberExternalId' => $userId,
             ],
             [
-                'subscriber_id',
-                'bot_hash',
+                'subscriberId',
+                'botHash',
             ]
         );
     }

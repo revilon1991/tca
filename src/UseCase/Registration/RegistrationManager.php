@@ -33,7 +33,7 @@ class RegistrationManager
     {
         $sql = <<<SQL
             select id
-            from `user`
+            from `User`
             where username = :username
 SQL;
 
@@ -56,9 +56,9 @@ SQL;
         $sql = <<<SQL
             select
                 id,
-                subscriber_external_id
-            from `user`
-            where bot_hash = :bot_hash
+                subscriberExternalId
+            from `User`
+            where botHash = :bot_hash
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql, [
@@ -79,8 +79,8 @@ SQL;
     {
         $sql = <<<SQL
             select id
-            from subscriber
-            where external_id = :external_id
+            from Subscriber
+            where externalId = :external_id
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql, [
@@ -97,6 +97,6 @@ SQL;
      */
     public function updateUser(array $params): void
     {
-        $this->manager->update('user', $params);
+        $this->manager->update('User', $params);
     }
 }

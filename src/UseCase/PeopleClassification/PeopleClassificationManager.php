@@ -33,8 +33,8 @@ class PeopleClassificationManager
     public function clearPeopleMark(): void
     {
         $sql = <<<SQL
-            update subscriber set people = null;
-            update photo set people = null;
+            update Subscriber set people = null;
+            update Photo set people = null;
 SQL;
 
         $this->manager->getConnection()->exec($sql);
@@ -51,8 +51,8 @@ SQL;
             select
                 p.id,
                 p.extension
-            from photo p
-            inner join group_subscriber gs on gs.subscriber_id = p.subscriber_id
+            from Photo p
+            inner join GroupSubscriber gs on gs.subscriberId = p.subscriberId
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);
@@ -71,15 +71,15 @@ SQL;
         
         $sql = <<<SQL
             select
-                gs.subscriber_id,
-                p.id photo_id
-            from photo p
-            inner join group_subscriber gs on gs.subscriber_id = p.subscriber_id
+                gs.subscriberId,
+                p.id photoId
+            from Photo p
+            inner join GroupSubscriber gs on gs.subscriberId = p.subscriberId
 SQL;
         $stmt = $this->manager->getConnection()->executeQuery($sql);
 
         foreach ($stmt->fetchAll() as $row) {
-            $resultList[$row['subscriber_id']][$row['photo_id']] = $row['photo_id'];
+            $resultList[$row['subscriberId']][$row['photoId']] = $row['photoId'];
         }
         
         return $resultList;
@@ -100,13 +100,13 @@ SQL;
             foreach ($chunkList as $groupId => $countPeople) {
                 $paramsList[] = [
                     'date' => $now,
-                    'group_id' => $groupId,
-                    'count_people' => $countPeople,
+                    'groupId' => $groupId,
+                    'countPeople' => $countPeople,
                 ];
             }
 
-            $this->manager->upsertBulk('report_group', $paramsList, [
-                'count_people',
+            $this->manager->upsertBulk('ReportGroup', $paramsList, [
+                'countPeople',
             ]);
         }
     }
@@ -128,7 +128,7 @@ SQL;
                 ];
             }
 
-            $this->manager->updateBulk('photo', $paramsList);
+            $this->manager->updateBulk('Photo', $paramsList);
         }
     }
 
@@ -149,7 +149,7 @@ SQL;
                 ];
             }
 
-            $this->manager->updateBulk('subscriber', $paramsList);
+            $this->manager->updateBulk('Subscriber', $paramsList);
         }
     }
 
@@ -164,12 +164,12 @@ SQL;
 
         $sql = <<<SQL
             select
-                gs.group_id,
-                count(gs.subscriber_id) cnt
-            from subscriber s
-            inner join group_subscriber gs on s.id = gs.subscriber_id
+                gs.groupId,
+                count(gs.subscriberId) cnt
+            from Subscriber s
+            inner join GroupSubscriber gs on s.id = gs.subscriberId
             where s.people = :is_people
-            group by gs.group_id
+            group by gs.groupId
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql, [
@@ -177,7 +177,7 @@ SQL;
         ]);
 
         foreach ($stmt->fetchAll() as $row) {
-            $resultList[$row['group_id']] = $row['cnt'];
+            $resultList[$row['groupId']] = $row['cnt'];
         }
 
         return $resultList;

@@ -34,10 +34,10 @@ class RestorePasswordManager
         $sql = <<<SQL
             select
                 id,
-                subscriber_external_id,
+                subscriberExternalId,
                 email,
-                updated_at
-            from `user`
+                updatedAt
+            from `User`
             where username = :username
 SQL;
 

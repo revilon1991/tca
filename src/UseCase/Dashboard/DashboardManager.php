@@ -32,8 +32,8 @@ class DashboardManager
     {
         $sql = <<<SQL
             select id
-            from `group`
-            order by created_at DESC
+            from `Group`
+            order by createdAt DESC
 SQL;
 
         $stmt = $this->manager->getConnection()->executeQuery($sql);

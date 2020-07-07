@@ -164,7 +164,7 @@ class RestorePasswordHandler implements CsrfValidatorAwareInterface
         $jwtToken = $this->jwtTokenHandler->encode([
             'user_id' => $user['id'],
             'restore_method' => $restoreMethod,
-            'user_updated_at' => $user['updated_at'],
+            'user_updated_at' => $user['updatedAt'],
         ]);
 
         $text .= $this->router->generate(

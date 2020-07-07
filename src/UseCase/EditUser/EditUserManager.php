@@ -29,6 +29,6 @@ class EditUserManager
      */
     public function saveUser(array $params): void
     {
-        $this->manager->update('user', $params);
+        $this->manager->update('User', $params);
     }
 }

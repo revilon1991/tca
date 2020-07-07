@@ -13,7 +13,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * @ORM\Table(
- *     name="`group`",
+ *     name="`Group`",
  *     uniqueConstraints={
  *         @ORM\UniqueConstraint(
  *             name="uniqExternalId",
