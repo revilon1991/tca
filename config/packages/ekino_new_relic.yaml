@@ -1,0 +1,10 @@
+ekino_new_relic:
+    enabled: false
+    application_name: '%env(PROJECT_NAME)%'
+    api_key: '%env(NEWRELIC_API_KEY)%'
+    license_key: '%env(NEWRELIC_LICENSE_KEY)%'
+    exceptions: true
+    deprecations: false
+    monolog:
+        enabled: true
+        service: App\Monolog\Handler\NewRelicHandler

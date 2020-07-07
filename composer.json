@@ -20,6 +20,7 @@
         "amphp/websocket": "dev-master#db2da8c5b3ed22eae37da5ffa10ab3ea8de19342 as 1",
         "amphp/websocket-client": "dev-master#aff808025637bd705672338b4904ad03a4dbdc04 as 1",
         "danog/madelineproto": "^4",
+        "ekino/newrelic-bundle": "^2.2",
         "gedmo/doctrine-extensions": "^2.4",
         "googlecodelabs/tensorflow-for-poets-2": "dev-master",
         "guzzlehttp/guzzle": "^7.0",
