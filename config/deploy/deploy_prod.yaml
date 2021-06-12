@@ -30,7 +30,7 @@
 
         # symfony deployer
         symfony_env:                        prod
-        symfony_php_path:                   php
+        symfony_php_path:                   php7.1
         symfony_run_composer:               true
         symfony_composer_options:           '-v -n -o --prefer-dist --no-progress --no-dev'
         symfony_console_path:               'bin/console'
